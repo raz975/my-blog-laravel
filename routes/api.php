@@ -1,8 +1,10 @@
 <?php
-use App\Http\Controllers\Api\CommentController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\AdminUserController;
 
 // === Публичные ===
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -30,6 +32,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
     Route::post('/comments/{id}/like', [CommentController::class, 'like']);
+
+    // Admin Users
+    Route::get('/admin/users', [AdminUserController::class, 'index']);
+    Route::put('/admin/users/{id}/block', [AdminUserController::class, 'block']);
+    Route::put('/admin/users/{id}/role', [AdminUserController::class, 'changeRole']);
+    Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy']);
 });
 
 // === Тест ===

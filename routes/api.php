@@ -5,10 +5,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Api\LanguageController;
 
 // === Публичные ===
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('/languages', [LanguageController::class, 'list']);
 
 // === Защищённые ===
 Route::middleware('auth:sanctum')->group(function () {
@@ -38,6 +40,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/admin/users/{id}/block', [AdminUserController::class, 'block']);
     Route::put('/admin/users/{id}/role', [AdminUserController::class, 'changeRole']);
     Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy']);
+
+    // Languages (admin)
+    Route::get('/admin/languages', [LanguageController::class, 'index']);
+    Route::post('/admin/languages', [LanguageController::class, 'store']);
+    Route::put('/admin/languages/{id}', [LanguageController::class, 'update']);
+    Route::delete('/admin/languages/{id}', [LanguageController::class, 'destroy']);
+    Route::put('/admin/languages/{id}/set-active', [LanguageController::class, 'setActive']);
 });
 
 // === Тест ===

@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\Api\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
@@ -23,6 +23,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     Route::post('/posts/{id}/like', [PostController::class, 'like']);
+
+    // Comments
+    Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
+    Route::post('/posts/{postId}/comments', [CommentController::class, 'store']);
+    Route::put('/comments/{id}', [CommentController::class, 'update']);
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+    Route::post('/comments/{id}/like', [CommentController::class, 'like']);
 });
 
 // === Тест ===

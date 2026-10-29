@@ -16,6 +16,8 @@ try {
         jsonError("User not found", 404);
     }
 
+    $currentUserId = isset($_SESSION["user_id"]) ? (int)$_SESSION["user_id"] : 0;
+
     $stmt = $pdo->prepare("SELECT COUNT(*) AS cnt FROM subscriptions WHERE following_id = ?");
     $stmt->execute([$targetId]);
     $followers = (int)$stmt->fetch(PDO::FETCH_ASSOC)["cnt"];
@@ -38,7 +40,11 @@ try {
             p.title,
             p.content,
             p.created_at,
-            (SELECT file_name FROM post_images WHERE post_id = p.id ORDER BY id DESC LIMIT 1) AS image_file
+            (SELECT file_name FROM post_images WHERE post_id = p.id ORDER BY id DESC LIMIT 1) AS image_file,
+            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes,
+            " . ($currentUserId > 0
+                ? "(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND user_id = " . $currentUserId . ") AS liked_by_me"
+                : "0 AS liked_by_me") . "
         FROM posts p
         WHERE p.user_id = ?
         ORDER BY p.id DESC
@@ -49,13 +55,14 @@ try {
     foreach ($posts as &$post) {
         $post["id"] = (int)$post["id"];
         $post["image_url"] = $post["image_file"] ? "/uploads/" . $post["image_file"] : null;
+        $post["likes"] = (int)$post["likes"];
+        $post["liked_by_me"] = (int)$post["liked_by_me"];
         unset($post["image_file"]);
     }
     unset($post);
 
     $isSubscribed = false;
-    if (isset($_SESSION["user_id"])) {
-        $currentUserId = (int)$_SESSION["user_id"];
+    if ($currentUserId > 0) {
         $stmt = $pdo->prepare("SELECT id FROM subscriptions WHERE follower_id = ? AND following_id = ?");
         $stmt->execute([$currentUserId, $targetId]);
         $isSubscribed = (bool)$stmt->fetch();

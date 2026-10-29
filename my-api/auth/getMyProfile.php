@@ -27,17 +27,21 @@ try {
             p.title,
             p.content,
             p.created_at,
-            (SELECT file_name FROM post_images WHERE post_id = p.id ORDER BY id DESC LIMIT 1) AS image_file
+            (SELECT file_name FROM post_images WHERE post_id = p.id ORDER BY id DESC LIMIT 1) AS image_file,
+            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes,
+            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND user_id = ?) AS liked_by_me
         FROM posts p
         WHERE p.user_id = ?
         ORDER BY p.id DESC
     ");
-    $stmt->execute([$userId]);
+    $stmt->execute([$userId, $userId]);
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($posts as &$post) {
         $post["id"] = (int)$post["id"];
         $post["image_url"] = $post["image_file"] ? "/uploads/" . $post["image_file"] : null;
+        $post["likes"] = (int)$post["likes"];
+        $post["liked_by_me"] = (int)$post["liked_by_me"];
         unset($post["image_file"]);
     }
     unset($post);

@@ -103,7 +103,6 @@ export default function Profile({ user, setUser, lang }) {
           <div style={{ flex: 1, minWidth: "250px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
               <h1 style={{ margin: "0", fontSize: "26px" }}>{profile.name}</h1>
-              <button onClick={() => setShowSettings(true)} title={t(lang, "settings")} style={{ border: "none", background: "var(--bg-hover)", borderRadius: "10px", padding: "6px 10px", cursor: "pointer", fontSize: "18px" }}>⚙️</button>
               {profile.role === "admin" && (
                 <span style={{ background: "var(--accent)", color: "white", fontSize: "12px", padding: "3px 10px", borderRadius: "20px" }}>ADMIN</span>
               )}
@@ -114,7 +113,8 @@ export default function Profile({ user, setUser, lang }) {
             <Stat label={t(lang, "posts")} value={profile.posts.length} />
             <Stat label={t(lang, "followers")} value={profile.followers} />
             <Stat label={t(lang, "following")} value={profile.following} />
-            <Stat label={t(lang, "likesReceived")} value={"❤️ " + profile.likes_received} />
+            <Stat label={t(lang, "likesReceived")} value={"" + profile.likes_received} />
+            <button onClick={() => setShowSettings(true)} title={t(lang, "settings")} style={{ border: "none", background: "var(--accent)", borderRadius: "10px", padding: "6px 10px", cursor: "pointer", fontSize: "18px" }}>⚙️</button>
           </div>
         </div>
 

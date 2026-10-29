@@ -25,9 +25,6 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
     <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
       {user && (
         <>
-          <Link to="/" style={linkStyle}>{t(lang, "posts")}</Link>
-          <Link to="/menu" style={linkStyle}>{t(lang, "manageMenu")}</Link>
-          <Link to="/create" style={linkStyle}>{t(lang, "createPost")}</Link>
 
           {isAdmin && (
             <select
@@ -44,6 +41,10 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
             </select>
           )}
 
+          <Link to="/" style={linkStyle}>{t(lang, "posts")}</Link>
+          <Link to="/menu" style={linkStyle}>{t(lang, "manageMenu")}</Link>
+          <Link to="/create" style={linkStyle}>{t(lang, "createPost")}</Link>
+
           <Link to="/profile" style={linkStyle}>{t(lang, "profile")}</Link>
         </>
       )}
@@ -59,7 +60,7 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
         <ThemeToggle />
         <LanguageSelector lang={lang} setLang={setLang} />
       </div>
-          <button onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>{t(lang, "logout")}</button>
+      <button onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>{t(lang, "logout")}</button>
     </nav>
   );
 }

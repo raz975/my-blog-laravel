@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\Api\MenuItemController;
+use App\Http\Controllers\Api\ImageController;
 
 // === Публичные ===
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -55,9 +56,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Menu (admin)
     Route::get('/admin/menu', [MenuItemController::class, 'adminIndex']);
     Route::post('/admin/menu', [MenuItemController::class, 'store']);
-    Route::put('/admin/menu/reorder', [MenuItemController::class, 'reorder']);  // ← ВАЖНО: до /{id}!
+    Route::put('/admin/menu/reorder', [MenuItemController::class, 'reorder']);
     Route::put('/admin/menu/{id}', [MenuItemController::class, 'update']);
     Route::delete('/admin/menu/{id}', [MenuItemController::class, 'destroy']);
+
+    // Images
+    Route::post('/images/upload', [ImageController::class, 'upload']);
+    Route::get('/images/{postId}', [ImageController::class, 'get']);
+    Route::delete('/images/{postId}', [ImageController::class, 'delete']);
 });
 
 // === Тест ===

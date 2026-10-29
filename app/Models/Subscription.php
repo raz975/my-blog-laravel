@@ -9,6 +9,8 @@ class Subscription extends Model
 {
     use HasFactory;
 
+ public $timestamps = false; 
+
     protected $fillable = [
         'follower_id',
         'following_id',

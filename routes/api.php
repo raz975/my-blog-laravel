@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\MenuItemController;
 
 // === Публичные ===
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -41,12 +42,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/admin/users/{id}/role', [AdminUserController::class, 'changeRole']);
     Route::delete('/admin/users/{id}', [AdminUserController::class, 'destroy']);
 
-    // Languages (admin)
+    // Languages
     Route::get('/admin/languages', [LanguageController::class, 'index']);
     Route::post('/admin/languages', [LanguageController::class, 'store']);
     Route::put('/admin/languages/{id}', [LanguageController::class, 'update']);
     Route::delete('/admin/languages/{id}', [LanguageController::class, 'destroy']);
     Route::put('/admin/languages/{id}/set-active', [LanguageController::class, 'setActive']);
+
+    // Menu (публичное)
+    Route::get('/menu', [MenuItemController::class, 'index']);
+
+    // Menu (admin)
+    Route::get('/admin/menu', [MenuItemController::class, 'adminIndex']);
+    Route::post('/admin/menu', [MenuItemController::class, 'store']);
+    Route::put('/admin/menu/reorder', [MenuItemController::class, 'reorder']);  // ← ВАЖНО: до /{id}!
+    Route::put('/admin/menu/{id}', [MenuItemController::class, 'update']);
+    Route::delete('/admin/menu/{id}', [MenuItemController::class, 'destroy']);
 });
 
 // === Тест ===

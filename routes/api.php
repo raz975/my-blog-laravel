@@ -2,20 +2,30 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PostController;
 
-// === Публичные роуты ===
+// === Публичные ===
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-// === Защищённые роуты (требуется токен) ===
+// === Защищённые ===
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::put('/auth/update-profile', [AuthController::class, 'updateProfile']);
     Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
+
+    // Posts
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/{id}', [PostController::class, 'show']);
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::put('/posts/{id}', [PostController::class, 'update']);
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+    Route::post('/posts/{id}/like', [PostController::class, 'like']);
 });
 
-// Тестовый роут (можешь оставить для проверки БД)
+// === Тест ===
 Route::get('/test', function () {
     try {
         $users = \Illuminate\Support\Facades\DB::table('users')->count();

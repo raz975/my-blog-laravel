@@ -1,11 +1,29 @@
-﻿# ========== Node ==========
+# ========== Node / React ==========
 node_modules/
 frontend/node_modules/
 dist/
 build/
 .vite/
+npm-debug.log
+yarn-error.log
 
-# ========== PHP / Backend ==========
+# ========== PHP / Laravel ==========
+/vendor
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+.env
+.env.backup
+.env.production
+.env.local
+.env.*.local
+auth.json
+Homestead.json
+Homestead.yaml
+.phpunit.cache
+
+# ========== Прочее ==========
 my-api/sessions/
 my-api/logs/
 my-api/.osp/
@@ -18,12 +36,5 @@ my-api/uploads/*
 .DS_Store
 Thumbs.db
 *.swp
-
-# ========== ENV ==========
-.env
-.env.local
-.env.*.local
-
-# ========== Backups ==========
 *.backup
 *.bak

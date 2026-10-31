@@ -1,146 +1,124 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { t } from "../translations.js";
 
 export default function CreatePost({ lang }) {
-  const navigate = useNavigate();
-  const [languages, setLanguages] = useState([]);
-  const [activeTab, setActiveTab] = useState("ru");
-  const [translations, setTranslations] = useState({});
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    api.getPublicLanguages()
-      .then(data => {
-        const langs = data.languages || [];
-        setLanguages(langs);
-        const initial = {};
-        langs.forEach(l => { initial[l.code] = { title: "", content: "" }; });
-        setTranslations(initial);
-        const active = langs.find(l => l.is_active === 1);
-        if (active) setActiveTab(active.code);
-      })
-      .catch(() => setError("Failed to load languages"));
-  }, []);
-
-  const updateField = (code, field, value) => {
-    setTranslations(prev => ({
-      ...prev,
-      [code]: { ...prev[code], [field]: value }
-    }));
-  };
-
-  const onFileChange = e => {
-    const f = e.target.files[0];
-    if (!f) { setFile(null); setPreview(null); return; }
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
-
-  const submit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const main = translations[activeTab] || translations.ru || { title: "", content: "" };
-
-    if (!main.title || !main.content) {
-      setError("Заполните поля для активного языка: " + activeTab);
-      setLoading(false);
+    if (!title.trim() || !content.trim()) {
+      setError("Заполните заголовок и текст поста");
       return;
     }
 
-    try {
-      const created = await api.createPost({
-        title: main.title,
-        content: main.content,
-        translations
-      });
-      const newId = created.id;
+    setLoading(true);
+    setError("");
 
-      if (file) {
-        const up = await api.uploadImage(newId, file);
-        if (!up.success) throw new Error(up.error || "Image upload failed");
+    try {
+      const response = await api.createPost({ title, content });
+      
+      if (response.success === false) {
+        throw new Error(response.message || "Ошибка при создании поста");
+      }
+
+      const newPostId = response.data.id;
+
+      if (image) {
+        await api.uploadImage(newPostId, image);
       }
 
       navigate("/");
-    } catch (e) {
-      setError(e.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // Уменьшили отступы и ширину инпутов
   const inputStyle = {
-    width: "260px",
-    height: "38px",
+    width: "100%",
     padding: "8px 12px",
-    border: "none",
+    border: "1px solid var(--border-input)",
     borderRadius: "9px",
     fontFamily: "Franklin Gothic Medium",
     boxSizing: "border-box",
     outline: "none",
     background: "var(--bg-input)",
-    color: "var(--text-main)"
+    color: "var(--text-main)",
+    marginBottom: "12px",
+    fontSize: "14px"
   };
 
   return (
-    <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", fontFamily: "Franklin Gothic Medium", width: "440px", margin: "30px auto", textAlign: "center", boxSizing: "border-box", color: "var(--text-main)", transition: "background 0.3s" }}>
-      <h1 style={{ margin: "0 0 20px", color: "var(--text-main)" }}>{t(lang, "createPostTitle")}</h1>
+    // Уменьшили maxWidth до 400px и отступы
+    <div style={{ maxWidth: "400px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
+      <div style={{ 
+        background: "var(--bg-card)", 
+        boxShadow: "var(--shadow)", 
+        borderRadius: "14px", 
+        padding: "20px" // Уменьшили padding
+      }}>
+        <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "20px" }}>
+          {t(lang, "createPost") || "Создать пост"}
+        </h2>
 
-      <div style={{ display: "flex", gap: "5px", marginBottom: "15px", justifyContent: "center", flexWrap: "wrap" }}>
-        {languages.map(l => (
-          <button
-            key={l.code}
-            type="button"
-            onClick={() => setActiveTab(l.code)}
-            style={{
-              border: "none",
-              borderRadius: "8px",
-              padding: "6px 12px",
-              cursor: "pointer",
+        {error && <p style={{ color: "var(--danger)", marginBottom: "10px", fontSize: "13px" }}>{error}</p>}
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+          
+          <input
+            style={inputStyle}
+            type="text"
+            placeholder={t(lang, "title") || "Заголовок"}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          {/* Заменили textarea на обычный input */}
+          <input
+            style={inputStyle}
+            type="text"
+            placeholder={t(lang, "content") || "Текст поста"}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+
+          <div style={{ marginBottom: "15px" }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+              style={{ fontSize: "13px", color: "var(--text-secondary)" }}
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            style={{ 
+              border: "none", 
+              borderRadius: "9px", 
+              padding: "9px 15px", 
+              cursor: loading ? "not-allowed" : "pointer", 
+              background: "var(--accent)", 
+              color: "white",
               fontFamily: "Franklin Gothic Medium",
-              background: activeTab === l.code ? "var(--accent)" : "var(--bg-hover)",
-              color: activeTab === l.code ? "white" : "var(--text-main)",
-              fontSize: "13px"
+              fontSize: "14px"
             }}
           >
-            {l.name}
+            {loading ? "Создание..." : (t(lang, "create") || "Создать")}
           </button>
-        ))}
+
+        </form>
       </div>
-
-      <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
-        {translations[activeTab] && (
-          <>
-            <input
-              style={inputStyle}
-              placeholder={`${t(lang, "title")} (${activeTab})`}
-              value={translations[activeTab].title}
-              onChange={e => updateField(activeTab, "title", e.target.value)}
-            />
-            <input
-              style={inputStyle}
-              placeholder={`${t(lang, "content")} (${activeTab})`}
-              value={translations[activeTab].content}
-              onChange={e => updateField(activeTab, "content", e.target.value)}
-            />
-          </>
-        )}
-
-        <input type="file" accept="image/*" onChange={onFileChange} style={{ fontFamily: "Franklin Gothic Medium", fontSize: "13px", color: "var(--text-main)" }} />
-        {preview && <img src={preview} alt="preview" style={{ maxWidth: "220px", maxHeight: "150px", borderRadius: "9px", objectFit: "cover" }} />}
-
-        {error && <p style={{ color: "var(--danger)", margin: "0" }}>{error}</p>}
-
-        <button disabled={loading} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", height: "35px" }}>
-          {loading ? t(lang, "creating") : t(lang, "create")}
-        </button>
-      </form>
     </div>
   );
 }

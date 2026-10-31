@@ -2,96 +2,93 @@ import { useState } from "react";
 import { api } from "../api.js";
 import { t } from "../translations.js";
 
-export default function CommentItem({ comment, user, postOwnerId, onUpdate, onDelete, lang }) {
+export default function CommentItem({ comment, user, postOwnerId, onUpdate, lang }) {
   const [editing, setEditing] = useState(false);
-  const [editText, setEditText] = useState(comment.content);
-  const [likes, setLikes] = useState(comment.likes);
-  const [likedByMe, setLikedByMe] = useState(comment.liked_by_me === 1);
-  const [likeLoading, setLikeLoading] = useState(false);
+  const [text, setText] = useState(comment.content || comment.text || comment.body || "");
+  const [error, setError] = useState("");
 
-  const isAuthor = user && Number(user.id) === Number(comment.user_id);
-  const isPostOwner = user && Number(user.id) === Number(postOwnerId);
-  const isAdmin = user && user.role === "admin";
-  const canDelete = isAuthor || isPostOwner || isAdmin;
+  const userId = Number(user?.id);
+  const commentUserId = Number(comment.user_id);
+  
+  const isAuthor = userId === commentUserId;
+  const isAdmin = user?.role === "admin";
+
+  // Редактировать может ТОЛЬКО автор
   const canEdit = isAuthor;
+  
+  // Удалять может автор ИЛИ админ
+  const canDelete = isAuthor || isAdmin;
 
-  const saveEdit = async () => {
-    if (!editText.trim()) return;
+  const handleUpdate = async () => {
+    if (!text.trim()) return;
     try {
-      await api.updateComment(comment.id, editText.trim());
+      await api.updateComment(comment.id, text.trim());
       setEditing(false);
       onUpdate();
-    } catch (e) { alert(e.message); }
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
-  const remove = async () => {
-    if (!confirm(t(lang, "deleteCommentConfirm"))) return;
+  const handleDelete = async () => {
+    if (!confirm(t(lang, "confirmDeleteComment") || "Удалить комментарий?")) return;
     try {
       await api.deleteComment(comment.id);
-      onDelete();
-    } catch (e) { alert(e.message); }
-  };
-
-  const toggleLike = async () => {
-    if (!user || likeLoading) return;
-    setLikeLoading(true);
-    try {
-      const res = await api.likeComment(comment.id);
-      setLikes(res.likes);
-      setLikedByMe(res.liked);
-    } catch (e) { console.warn(e.message); }
-    finally { setLikeLoading(false); }
-  };
-
-  const btnStyle = {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: "12px",
-    padding: "3px 6px",
-    color: "var(--text-muted)",
-    borderRadius: "6px",
-    fontFamily: "Franklin Gothic Medium"
+      onUpdate();
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   return (
-    <div style={{ padding: "12px", marginBottom: "10px", background: "var(--bg-row)", borderRadius: "10px", color: "var(--text-main)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-        <b style={{ fontSize: "14px" }}>{comment.author}</b>
-        <small style={{ color: "var(--text-muted)", fontSize: "12px" }}>
-          {new Date(comment.created_at).toLocaleString()}
-          {comment.updated_at && " " + t(lang, "edited")}
+    <div style={{ background: "var(--bg-card)", padding: "12px 15px", borderRadius: "10px", marginBottom: "10px", boxShadow: "var(--shadow-small)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+        <strong style={{ color: "var(--accent)", fontSize: "14px" }}>
+          {comment.author_name || comment.author || `User ${comment.user_id}`}
+        </strong>
+        <small style={{ color: "var(--text-muted)", fontSize: "11px" }}>
+          {comment.created_at ? new Date(comment.created_at).toLocaleDateString('ru-RU') : ""}
         </small>
       </div>
 
+      {error && <p style={{ color: "var(--danger)", fontSize: "12px" }}>{error}</p>}
+
       {editing ? (
-        <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
-          <textarea
-            value={editText}
-            onChange={e => setEditText(e.target.value)}
-            style={{ padding: "8px", borderRadius: "8px", border: "1px solid var(--border-input)", background: "var(--bg-input)", color: "var(--text-main)", fontFamily: "Franklin Gothic Medium", resize: "none", minHeight: "60px" }}
+        <div>
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            style={{ width: "100%", padding: "5px", marginBottom: "5px", borderRadius: "5px", border: "1px solid var(--border-input)", background: "var(--bg-input)", color: "var(--text-main)" }}
           />
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={saveEdit} style={{ border: "none", borderRadius: "8px", padding: "5px 12px", cursor: "pointer", background: "var(--accent)", color: "white", fontSize: "12px" }}>{t(lang, "save")}</button>
-            <button onClick={() => { setEditing(false); setEditText(comment.content); }} style={{ border: "none", borderRadius: "8px", padding: "5px 12px", cursor: "pointer", background: "var(--danger)", color: "white", fontSize: "12px" }}>{t(lang, "cancel")}</button>
-          </div>
+          <button onClick={handleUpdate} style={{ marginRight: "5px", background: "var(--accent)", color: "white", border: "none", padding: "3px 8px", borderRadius: "5px", cursor: "pointer" }}>
+            {t(lang, "save") || "Сохранить"}
+          </button>
+          <button onClick={() => setEditing(false)} style={{ background: "var(--danger)", color: "white", border: "none", padding: "3px 8px", borderRadius: "5px", cursor: "pointer" }}>
+            {t(lang, "cancel") || "Отмена"}
+          </button>
         </div>
       ) : (
-        <p style={{ margin: "0 0 8px", whiteSpace: "pre-wrap", fontSize: "14px" }}>{comment.content}</p>
+        <p style={{ margin: "0 0 8px", fontSize: "14px", wordBreak: "break-word" }}>
+          {comment.content || comment.text || comment.body}
+        </p>
       )}
 
-      {!editing && (
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <button
-            onClick={toggleLike}
-            disabled={!user || likeLoading}
-            style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "13px", color: likedByMe ? "#e91e63" : "var(--text-muted)", padding: "3px 6px", fontFamily: "Franklin Gothic Medium" }}
-          >
-            {likedByMe ? "❤️" : "🤍"} {likes}
-          </button>
+      {!editing && (canEdit || canDelete) && (
+        <div style={{ display: "flex", gap: "10px", fontSize: "12px" }}>
+          
+          {canEdit && (
+            <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 0 }}>
+              {t(lang, "edit") || "Изменить"}
+            </button>
+          )}
 
-          {canEdit && <button onClick={() => setEditing(true)} style={btnStyle}>{t(lang, "edit")}</button>}
-          {canDelete && <button onClick={remove} style={{ ...btnStyle, color: "var(--danger)" }}>{t(lang, "delete")}</button>}
+          {canDelete && (
+            <button onClick={handleDelete} style={{ background: "none", border: "none", color: "var(--danger)", cursor: "pointer", padding: 0 }}>
+              {t(lang, "delete") || "Удалить"}
+            </button>
+          )}
+          
         </div>
       )}
     </div>

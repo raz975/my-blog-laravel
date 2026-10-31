@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "../api.js";
 import { t } from "../translations.js";
 import CommentsModal from "../components/CommentsModal.jsx";
@@ -7,87 +7,123 @@ import CommentsModal from "../components/CommentsModal.jsx";
 export default function Post({ user, lang }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  
   const [post, setPost] = useState(null);
   const [image, setImage] = useState(null);
-  const [likes, setLikes] = useState(0);
-  const [likedByMe, setLikedByMe] = useState(false);
-  const [loadingLike, setLoadingLike] = useState(false);
   const [error, setError] = useState("");
-  const [openComments, setOpenComments] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
   useEffect(() => {
-    Promise.all([api.getPost(id, lang), api.getPostImage(id)])
-      .then(([pData, iData]) => {
-        setPost(pData.post);
-        setLikes(pData.post.likes || 0);
-        setLikedByMe(pData.post.liked_by_me === 1);
-        if (iData.image) setImage("http://my-api" + iData.image.url);
+    setLoading(true);
+    // Загружаем пост
+    api.getPost(id, lang)
+      .then((postRes) => {
+        const postData = postRes.data || postRes;
+        setPost(postData);
+        setLoading(false);
+
+        // Параллельно грузим картинку
+        api.getPostImage(id)
+          .then((imgRes) => {
+            if (imgRes && imgRes.image) {
+              setImage("http://127.0.0.1:8000" + imgRes.image.url);
+            }
+          })
+          .catch(() => {});
       })
-      .catch(e => setError(e.message));
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, [id, lang]);
 
-  const toggleLike = async () => {
-    if (!user || loadingLike) return;
-    setLoadingLike(true);
+  const handleLike = async () => {
+    if (!user) return alert("Войдите, чтобы лайкать");
     try {
-      const res = await api.likePost(post.id);
-      setLikes(res.likes);
-      setLikedByMe(res.liked);
-    } catch (e) { console.warn(e.message); }
-    finally { setLoadingLike(false); }
+      const res = await api.likePost(id);
+      setPost(prev => ({ ...prev, likes: res.likes, liked_by_me: res.liked }));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  if (error) return <p style={{ color: "var(--danger)" }}>{error}</p>;
-  if (!post) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>{t(lang, "loading")}</p>;
-
-  const owner = user && Number(user.id) === Number(post.user_id);
-  const isAdmin = user && user.role === "admin";
-
-  const remove = async () => {
-    if (!confirm(t(lang, "deletePostConfirm"))) return;
+  const handleDelete = async () => {
+    if (!confirm("Вы уверены, что хотите удалить пост?")) return;
     try {
-      await api.deletePost(post.id);
+      await api.deletePost(id);
       navigate("/");
-    } catch (e) { alert(e.message); }
+    } catch (err) {
+      setError(err.message);
+    }
   };
+
+  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>Загрузка...</p>;
+  if (error) return <p style={{ textAlign: "center", color: "var(--danger)", marginTop: "50px" }}>{error}</p>;
+  if (!post) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>Пост не найден</p>;
+
+  const isAuthor = Number(user?.id) === Number(post.user_id);
+  const isAdmin = user?.role === "admin";
+  
+  // Изменять может ТОЛЬКО автор
+  const canEdit = isAuthor; 
+  
+  // Удалять может автор ИЛИ админ
+  const canDelete = isAuthor || isAdmin;
 
   return (
-    <>
-      <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", fontFamily: "Franklin Gothic Medium", width: "430px", minHeight: "240px", margin: "30px auto", boxSizing: "border-box", color: "var(--text-main)", transition: "background 0.3s" }}>
-        <h1 style={{ margin: "0 0 18px", fontSize: "30px" }}>{post.title}</h1>
-        <p style={{ margin: "9px 0" }}>
-          <b>{t(lang, "author")}:</b> <Link to={`/user/${post.user_id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{post.author}</Link>
-        </p>
-        <p style={{ margin: "9px 0" }}><b>{t(lang, "created")}:</b> {post.created_at ? new Date(post.created_at).toLocaleDateString() : "Unknown"}</p>
-
-        {image && (
-          <div style={{ margin: "15px 0", textAlign: "center" }}>
-            <img src={image} alt={post.title} style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "10px", objectFit: "cover" }} />
+    <div style={{ maxWidth: "800px", margin: "30px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
+      
+      <div style={{ background: "var(--bg-card)", padding: "30px", borderRadius: "14px", boxShadow: "var(--shadow)", marginBottom: "20px" }}>
+        
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <h1 style={{ margin: "0 0 10px" }}>{post.title}</h1>
+          
+          <div style={{ display: "flex", gap: "10px" }}>
+            {/* Кнопка "Редактировать" - только автору */}
+            {canEdit && (
+              <Link to={`/posts/${post.id}/edit`} style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "6px 12px", borderRadius: "8px", fontSize: "13px" }}>
+                Редактировать
+              </Link>
+            )}
+            
+            {/* Кнопка "Удалить" - автору и админу */}
+            {canDelete && (
+              <button onClick={handleDelete} style={{ border: "none", background: "var(--danger)", color: "white", padding: "6px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>
+                Удалить
+              </button>
+            )}
           </div>
-        )}
-
-        <p style={{ margin: "14px 0 16px" }}>{post.content}</p>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-          <button onClick={toggleLike} disabled={loadingLike || !user} style={{ border: "2px solid " + (likedByMe ? "#e91e63" : "var(--border-color)"), background: likedByMe ? "#fce4ec" : "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "16px", padding: "6px 14px", borderRadius: "20px", fontFamily: "Franklin Gothic Medium", color: likedByMe ? "#e91e63" : "var(--text-main)", fontWeight: "bold" }}>
-            {likedByMe ? "❤️" : "🤍"} {likes} {likes === 1 ? t(lang, "like") : t(lang, "likes")}
-          </button>
-          <button onClick={() => setOpenComments(true)} style={{ border: "2px solid var(--border-color)", background: "transparent", cursor: "pointer", fontSize: "16px", padding: "6px 14px", borderRadius: "20px", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)", fontWeight: "bold" }}>
-            💬 {t(lang, "comments")}
-          </button>
         </div>
 
-        {(owner || isAdmin) && (
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={remove} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white" }}>{t(lang, "delete")}</button>
-            {owner && <Link to={`/edit/${post.id}`} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", textDecoration: "none", display: "inline-block", background: "var(--accent)", color: "white" }}>{t(lang, "edit")}</Link>}
+        <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "20px" }}>
+          Автор: <Link to={`/user/${post.user_id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{post.author || `User ${post.user_id}`}</Link>
+        </p>
+
+        {image && (
+          <div style={{ marginBottom: "20px", textAlign: "center" }}>
+            <img src={image} alt={post.title} style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "10px", objectFit: "cover" }} />
           </div>
         )}
+
+        <p style={{ fontSize: "16px", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "20px" }}>
+          {post.content}
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          <button onClick={handleLike} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "18px", color: post.liked_by_me ? "#e91e63" : "var(--text-muted)" }}>
+            {post.liked_by_me ? "❤️" : "🤍"} {post.likes || 0}
+          </button>
+          
+          <button onClick={() => setIsCommentsOpen(true)} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "18px", color: "var(--text-muted)" }}>
+            💬 Комментарии
+          </button>
+        </div>
       </div>
 
-      {openComments && (
-        <CommentsModal post={post} user={user} lang={lang} onClose={() => setOpenComments(false)} />
+      {isCommentsOpen && (
+        <CommentsModal post={post} user={user} lang={lang} onClose={() => setIsCommentsOpen(false)} />
       )}
-    </>
+    </div>
   );
 }

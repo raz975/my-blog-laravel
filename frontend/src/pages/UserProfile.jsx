@@ -31,21 +31,54 @@ function PostMiniCard({ post, lang, user, onOpenComments }) {
   return (
     <Link
       to={`/posts/${post.id}`}
-      style={{ background: "var(--bg-card)", borderRadius: "14px", padding: "12px", boxShadow: "var(--shadow-small)", width: "220px", boxSizing: "border-box", textDecoration: "none", color: "var(--text-main)", display: "flex", flexDirection: "column" }}
+      style={{ 
+        background: "var(--bg-card)", 
+        borderRadius: "14px", 
+        padding: "15px", 
+        boxShadow: "var(--shadow-small)", 
+        width: "220px", 
+        boxSizing: "border-box", 
+        textDecoration: "none", 
+        color: "var(--text-main)", 
+        display: "flex", 
+        flexDirection: "column",
+        height: "260px"
+      }}
     >
-      {post.image_url ? (
-        <img src={"http://my-api" + post.image_url} alt={post.title} style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }} onError={e => { e.target.style.display = "none"; }} />
-      ) : (
-        <div style={{ width: "100%", height: "120px", background: "var(--bg-hover)", borderRadius: "10px", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>нет картинки</div>
-      )}
-      <h3 style={{ margin: "0 0 8px", fontSize: "18px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h3>
-      <p style={{ margin: "0 0 10px", fontSize: "13px", color: "var(--text-secondary)", overflow: "hidden", flex: 1 }}>{post.content?.substring(0, 60)}{post.content?.length > 60 ? "..." : ""}</p>
+      <div style={{ flexShrink: 0, marginBottom: "10px" }}>
+        {post.image_url ? (
+          <img 
+            src={"http://127.0.0.1:8000" + post.image_url} 
+            alt={post.title} 
+            style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }} 
+            onError={e => { e.target.style.display = "none"; }} 
+          />
+        ) : (
+          <div style={{ width: "100%", height: "100px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>нет картинки</div>
+        )}
+      </div>
+
+      <div style={{ flex: 1, overflow: "hidden" }}>
+        <h3 style={{ margin: "0 0 5px", fontSize: "16px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h3>
+        <p style={{ margin: "0", fontSize: "12px", color: "var(--text-secondary)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {post.content}
+        </p>
+      </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "auto" }}>
-        <button onClick={toggleLike} disabled={loading || !user} style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "15px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}>
+        <button 
+          onClick={toggleLike} 
+          disabled={loading || !user} 
+          style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "14px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}
+        >
           {likedByMe ? "❤️" : "🤍"} {likes}
         </button>
-        <button onClick={openComments} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "15px", padding: "4px", color: "var(--text-muted)" }}>💬</button>
+        <button 
+          onClick={openComments} 
+          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "14px", padding: "4px", color: "var(--text-muted)" }}
+        >
+          💬
+        </button>
       </div>
     </Link>
   );
@@ -62,7 +95,10 @@ export default function UserProfile({ user, lang }) {
   const load = () => {
     setLoading(true);
     api.getUserProfile(id)
-      .then(data => setProfile(data.profile))
+      .then(response => {
+        const data = response.data || response;
+        setProfile(data);
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   };
@@ -86,7 +122,7 @@ export default function UserProfile({ user, lang }) {
     }
   };
 
-  if (loading) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)", textAlign: "center", marginTop: "40px" }}>{t(lang, "loading")}</p>;
+  if (loading) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)", textAlign: "center", marginTop: "40px" }}>{t(lang, "loading") || "Загрузка..."}</p>;
   if (error) return <p style={{ color: "var(--danger)", textAlign: "center", marginTop: "40px" }}>{error}</p>;
   if (!profile) return null;
 
@@ -95,7 +131,7 @@ export default function UserProfile({ user, lang }) {
   return (
     <>
       <div style={{ maxWidth: "900px", margin: "30px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
-        <div style={{ background: "var(--bg-card)", borderRadius: "16px", padding: "30px", boxShadow: "var(--shadow)", display: "flex", gap: "30px", alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: "16px", padding: "30px", boxShadow: "var(--shadow)", display: "flex", gap: "30px", alignItems: "center", flexWrap: "wrap", marginBottom: "30px" }}>
           <div style={{ width: "100px", height: "100px", borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px", color: "white", fontWeight: "bold", flexShrink: 0 }}>
             {profile.name.charAt(0).toUpperCase()}
           </div>
@@ -104,27 +140,27 @@ export default function UserProfile({ user, lang }) {
             <p style={{ margin: "8px 0", color: "var(--text-secondary)", fontSize: "14px" }}>{profile.email}</p>
             {!isMe && user && (
               <button onClick={toggleSubscribe} disabled={subLoading} style={{ marginTop: "10px", border: profile.is_subscribed ? "1px solid var(--border-color)" : "none", borderRadius: "20px", padding: "8px 24px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", fontSize: "14px", background: profile.is_subscribed ? "transparent" : "var(--accent)", color: profile.is_subscribed ? "var(--text-main)" : "white", fontWeight: "bold" }}>
-                {profile.is_subscribed ? t(lang, "unsubscribe") : t(lang, "subscribe")}
+                {profile.is_subscribed ? (t(lang, "unsubscribe") || "Отписаться") : (t(lang, "subscribe") || "Подписаться")}
               </button>
             )}
           </div>
           <div style={{ display: "flex", gap: "25px", flexWrap: "wrap" }}>
-            <Stat label={t(lang, "posts")} value={profile.posts.length} />
-            <Stat label={t(lang, "followers")} value={profile.followers} />
-            <Stat label={t(lang, "following")} value={profile.following} />
-            <Stat label={t(lang, "likesReceived")} value={"❤️ " + profile.likes_received} />
+            <Stat label={t(lang, "posts") || "Постов"} value={profile.posts?.length || 0} />
+            <Stat label={t(lang, "followers") || "Подписчиков"} value={profile.followers || 0} />
+            <Stat label={t(lang, "following") || "Подписок"} value={profile.following || 0} />
+            <Stat label={t(lang, "likesReceived") || "Лайков"} value={"❤️ " + (profile.total_likes || 0)} />
           </div>
         </div>
 
-        <h2 style={{ margin: "30px 0 20px" }}>{t(lang, "posts")}</h2>
-        {profile.posts.length ? (
+        <h2 style={{ margin: "0 0 20px" }}>{t(lang, "posts") || "Посты"}</h2>
+        {profile.posts?.length ? (
           <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
             {profile.posts.map(post => (
               <PostMiniCard key={post.id} post={post} lang={lang} user={user} onOpenComments={setOpenComments} />
             ))}
           </div>
         ) : (
-          <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts")}</p>
+          <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts") || "У пользователя пока нет постов."}</p>
         )}
       </div>
 

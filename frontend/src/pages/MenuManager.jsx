@@ -17,30 +17,43 @@ export default function MenuManager({ user, lang }) {
 
   const isAdmin = user?.role === "admin";
 
-  const load = () => {
-    api.getMenu(lang)
-      .then(data => {
-        const tree = data?.menu || [];
-        setMenu(tree);
-        const flat = [];
-        const flatten = list => list.forEach(x => {
-          flat.push(x);
-          if (x.children?.length) flatten(x.children);
-        });
-        flatten(tree);
-        setItems(flat);
-      })
-      .catch(e => setError(e.message));
+  const load = async () => {
+    try {
+      const response = await api.getMenu(lang);
+      // Laravel возвращает { success: true, data: [...] }
+      const flatItems = response.data || [];
+      
+      // Строим дерево из плоского списка
+      const buildTree = (list, parent = null) => {
+        return list
+          .filter(item => item.parent_id === parent)
+          .map(item => ({
+            ...item,
+            children: buildTree(list, item.id)
+          }));
+      };
+
+      const tree = buildTree(flatItems);
+      setMenu(tree);
+      setItems(flatItems);
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   useEffect(() => {
     api.getPublicLanguages()
-      .then(data => {
-        const langs = data.languages || [];
+      .then(response => {
+        // Исправлено: получаем массив из response.data
+        const langs = response.data || [];
         setLanguages(langs);
+        
+        // Инициализируем пустые переводы
         const initial = {};
         langs.forEach(l => { initial[l.code] = ""; });
         setTranslations(initial);
+        
+        // Ищем активный язык
         const active = langs.find(l => l.is_active === 1) || langs[0];
         if (active) setActiveTab(active.code);
       })
@@ -97,17 +110,12 @@ export default function MenuManager({ user, lang }) {
       return;
     }
 
-    const transMap = {};
-    languages.forEach(l => {
-      const val = (translations[l.code] || "").trim();
-      if (val) transMap[l.id] = val;
-    });
-
+    // Формируем данные для отправки в Laravel
     const data = {
-      name: mainName.trim(),
+      title: mainName.trim(), // Laravel контроллер ждет title (или name, мы там обрабатываем оба варианта)
+      name: mainName.trim(),  // Дублируем для надежности
       url: url || null,
       parent_id: parentId ? Number(parentId) : null,
-      translations: transMap
     };
 
     try {

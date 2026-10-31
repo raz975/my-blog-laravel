@@ -12,7 +12,8 @@ export default function CommentsModal({ post, user, onClose, lang }) {
   const load = () => {
     if (!post?.id) return;
     api.getComments(post.id)
-      .then(data => setComments(data.comments || []))
+      // ИСПРАВЛЕНО: Laravel возвращает { success: true, data: [...] }
+      .then(response => setComments(response.data || []))
       .catch(e => setError(e.message));
   };
 

@@ -1,153 +1,106 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { t } from "../translations.js";
 
-export default function EditPost({ lang }) {
+export default function EditPost({ user, lang }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [languages, setLanguages] = useState([]);
-  const [activeTab, setActiveTab] = useState("ru");
-  const [translations, setTranslations] = useState({});
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [existing, setExisting] = useState(null);
+  
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
+  // Загружаем текущий пост при открытии страницы
   useEffect(() => {
-    Promise.all([api.getPost(id, lang), api.getPostImage(id), api.getPublicLanguages()])
-      .then(([pData, iData, lData]) => {
-        const langs = lData.languages || [];
-        setLanguages(langs);
-
-        const initial = {};
-        langs.forEach(l => { initial[l.code] = { title: "", content: "" }; });
-
-        const active = langs.find(l => l.is_active === 1) || langs[0];
-        if (active) {
-          initial[active.code] = {
-            title: pData.post.title || "",
-            content: pData.post.content || ""
-          };
-          setActiveTab(active.code);
-        }
-
-        setTranslations(initial);
-        if (iData.image) setExisting("http://my-api" + iData.image.url);
+    api.getPost(id, lang)
+      .then(response => {
+        const post = response.data || response;
+        setTitle(post.title || "");
+        setContent(post.content || "");
+        setLoading(false);
       })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, [id, lang]);
 
-  const updateField = (code, field, value) => {
-    setTranslations(prev => ({
-      ...prev,
-      [code]: { ...prev[code], [field]: value }
-    }));
-  };
-
-  const onFileChange = e => {
-    const f = e.target.files[0];
-    if (!f) { setFile(null); setPreview(null); return; }
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
-
-  const submit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    const main = translations[activeTab] || {};
-    if (!main.title || !main.content) {
-      setError("Заполните поля для языка: " + activeTab);
+    if (!title.trim() || !content.trim()) {
+      setError("Заполните заголовок и текст");
       return;
     }
-
+    setSaving(true);
     try {
-      await api.updatePost({
-        id: Number(id),
-        title: main.title,
-        content: main.content,
-        translations
-      });
-      if (file) {
-        const up = await api.uploadImage(Number(id), file);
-        if (!up.success) throw new Error(up.error || "Image upload failed");
-      }
-      navigate(`/posts/${id}`);
-    } catch (e) {
-      setError(e.message);
+      await api.updatePost({ id, title, content });
+      navigate(`/posts/${id}`); // Возвращаемся на страницу поста
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>{t(lang, "loading")}</p>;
-
   const inputStyle = {
-    width: "260px",
-    height: "38px",
-    padding: "8px 12px",
+    width: "100%",
+    padding: "10px 12px",
     border: "1px solid var(--border-input)",
     borderRadius: "9px",
     fontFamily: "Franklin Gothic Medium",
     boxSizing: "border-box",
     outline: "none",
     background: "var(--bg-input)",
-    color: "var(--text-main)"
+    color: "var(--text-main)",
+    marginBottom: "15px"
   };
 
+  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>Загрузка...</p>;
+
   return (
-    <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", fontFamily: "Franklin Gothic Medium", width: "440px", margin: "30px auto", textAlign: "center", boxSizing: "border-box", color: "var(--text-main)", transition: "background 0.3s" }}>
-      <h1 style={{ margin: "0 0 20px", color: "var(--text-main)" }}>{t(lang, "editPost")}</h1>
+    <div style={{ maxWidth: "600px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
+      <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "30px" }}>
+        <h1 style={{ margin: "0 0 20px", textAlign: "center" }}>Редактировать пост</h1>
 
-      <div style={{ display: "flex", gap: "5px", marginBottom: "15px", justifyContent: "center", flexWrap: "wrap" }}>
-        {languages.map(l => (
-          <button
-            key={l.code}
-            type="button"
-            onClick={() => setActiveTab(l.code)}
-            style={{ border: "none", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: activeTab === l.code ? "var(--accent)" : "var(--bg-hover)", color: activeTab === l.code ? "white" : "var(--text-main)", fontSize: "13px" }}
+        {error && <p style={{ color: "var(--danger)", marginBottom: "15px" }}>{error}</p>}
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+          <input
+            style={inputStyle}
+            type="text"
+            placeholder="Заголовок"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <textarea
+            style={{ ...inputStyle, minHeight: "150px", resize: "vertical" }}
+            placeholder="Текст поста..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+
+          <button 
+            type="submit" 
+            disabled={saving}
+            style={{ 
+              border: "none", 
+              borderRadius: "10px", 
+              padding: "12px", 
+              cursor: saving ? "not-allowed" : "pointer", 
+              background: "var(--accent)", 
+              color: "white",
+              fontFamily: "Franklin Gothic Medium",
+              fontSize: "16px"
+            }}
           >
-            {l.name}
+            {saving ? "Сохранение..." : "Сохранить изменения"}
           </button>
-        ))}
+        </form>
       </div>
-
-      <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
-        {translations[activeTab] && (
-          <>
-            <input
-              style={inputStyle}
-              placeholder={`${t(lang, "title")} (${activeTab})`}
-              value={translations[activeTab].title}
-              onChange={e => updateField(activeTab, "title", e.target.value)}
-            />
-            <input
-              style={inputStyle}
-              placeholder={`${t(lang, "content")} (${activeTab})`}
-              value={translations[activeTab].content}
-              onChange={e => updateField(activeTab, "content", e.target.value)}
-            />
-          </>
-        )}
-
-        {existing && !preview && (
-          <div>
-            <p style={{ margin: "0 0 5px", fontSize: "13px", color: "var(--text-secondary)" }}>Текущая картинка:</p>
-            <img src={existing} alt="current" style={{ maxWidth: "220px", maxHeight: "150px", borderRadius: "9px", objectFit: "cover" }} />
-          </div>
-        )}
-
-        <input type="file" accept="image/*" onChange={onFileChange} style={{ fontFamily: "Franklin Gothic Medium", fontSize: "13px", color: "var(--text-main)" }} />
-        {preview && <img src={preview} alt="preview" style={{ maxWidth: "220px", maxHeight: "150px", borderRadius: "9px", objectFit: "cover" }} />}
-
-        {error && <p style={{ color: "var(--danger)", margin: "0" }}>{error}</p>}
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", height: "35px" }}>{t(lang, "save")}</button>
-          <button type="button" onClick={() => navigate(`/posts/${id}`)} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", height: "35px" }}>{t(lang, "cancel")}</button>
-        </div>
-      </form>
     </div>
   );
 }

@@ -56,7 +56,7 @@ function App() {
           <Route path="/" element={<ProtectedRoute user={user}><Posts user={user} lang={lang} /></ProtectedRoute>} />
           <Route path="/posts/:id" element={<ProtectedRoute user={user}><Post user={user} lang={lang} /></ProtectedRoute>} />
           <Route path="/create" element={<ProtectedRoute user={user}><CreatePost lang={lang} /></ProtectedRoute>} />
-          <Route path="/edit/:id" element={<ProtectedRoute user={user}><EditPost lang={lang} /></ProtectedRoute>} />
+          <Route path="/posts/:id/edit" element={<EditPost user={user} lang={lang} />} />
           <Route path="/profile" element={<ProtectedRoute user={user}><Profile user={user} setUser={setUser} lang={lang} /></ProtectedRoute>} />
           <Route path="/user/:id" element={<ProtectedRoute user={user}><UserProfile user={user} lang={lang} /></ProtectedRoute>} />
           <Route path="/menu" element={<ProtectedRoute user={user}><MenuManager user={user} lang={lang} /></ProtectedRoute>} />

@@ -11,10 +11,11 @@ function PostCard({ post, lang, user, onOpenComments }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api.getPostImage(post.id)
-      .then(data => { if (data.image) setImage("http://my-api" + data.image.url); })
-      .catch(() => {});
-  }, [post.id]);
+    // Теперь мы берем путь напрямую из поста, который присылает Laravel
+    if (post.image_url) {
+      setImage("http://127.0.0.1:8000" + post.image_url);
+    }
+  }, [post.image_url]);
 
   const toggleLike = async () => {
     if (!user || loading) return;
@@ -33,9 +34,11 @@ function PostCard({ post, lang, user, onOpenComments }) {
         <img src={image} alt={post.title} style={{ width: "100%", height: "90px", objectFit: "cover", borderRadius: "8px", marginBottom: "8px" }} />
       )}
       <h2 style={{ margin: "0 0 8px", fontSize: "20px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h2>
+      
       <p style={{ margin: "5px 0", fontSize: "13px", color: "var(--text-secondary)" }}>
-        {t(lang, "author")}: <Link to={`/user/${post.user_id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{post.author}</Link>
+        {t(lang, "author")}: <Link to={`/user/${post.user_id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{post.author || `User ${post.user_id}`}</Link>
       </p>
+      
       <p style={{ margin: "5px 0 8px", fontSize: "13px", overflow: "hidden", flex: 1 }}>{post.content?.substring(0, 40)}{post.content?.length > 40 ? "..." : ""}</p>
 
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "auto" }}>
@@ -57,7 +60,7 @@ export default function Posts({ user, lang }) {
 
   useEffect(() => {
     api.getPosts(lang, search)
-      .then(data => setPosts(data.posts || []))
+      .then(response => setPosts(response.data || []))
       .catch(e => setError(e.message));
   }, [lang, search]);
 

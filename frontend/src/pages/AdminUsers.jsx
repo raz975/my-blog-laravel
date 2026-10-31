@@ -8,7 +8,6 @@ export default function AdminUsers({ user, lang }) {
 
   const load = () => {
     api.getUsers()
-      // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Laravel возвращает { success, data }, берем response.data
       .then(response => setUsers(response.data || []))
       .catch(e => setError(e.message));
   };

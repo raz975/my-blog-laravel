@@ -42,9 +42,8 @@ export default function CreatePost({ lang }) {
     }
   };
 
-  // Уменьшили отступы и ширину инпутов
   const inputStyle = {
-    width: "100%",
+    width: "260px",
     padding: "8px 12px",
     border: "1px solid var(--border-input)",
     borderRadius: "9px",
@@ -58,13 +57,12 @@ export default function CreatePost({ lang }) {
   };
 
   return (
-    // Уменьшили maxWidth до 400px и отступы
     <div style={{ maxWidth: "400px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
       <div style={{ 
         background: "var(--bg-card)", 
         boxShadow: "var(--shadow)", 
         borderRadius: "14px", 
-        padding: "20px" // Уменьшили padding
+        padding: "20px"
       }}>
         <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "20px" }}>
           {t(lang, "createPost") || "Создать пост"}
@@ -72,7 +70,7 @@ export default function CreatePost({ lang }) {
 
         {error && <p style={{ color: "var(--danger)", marginBottom: "10px", fontSize: "13px" }}>{error}</p>}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", alignItems: 'center' }}>
           
           <input
             style={inputStyle}
@@ -82,7 +80,6 @@ export default function CreatePost({ lang }) {
             onChange={(e) => setTitle(e.target.value)}
           />
 
-          {/* Заменили textarea на обычный input */}
           <input
             style={inputStyle}
             type="text"
@@ -111,7 +108,8 @@ export default function CreatePost({ lang }) {
               background: "var(--accent)", 
               color: "white",
               fontFamily: "Franklin Gothic Medium",
-              fontSize: "14px"
+              fontSize: "14px",
+              width: "150px"
             }}
           >
             {loading ? "Создание..." : (t(lang, "create") || "Создать")}

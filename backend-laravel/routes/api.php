@@ -8,9 +8,6 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ImageController;
 
-// ==========================================
-// ПУБЛИЧНЫЕ МАРШРУТЫ
-// ==========================================
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/images/{postId}', [ImageController::class, 'show']);
@@ -19,23 +16,26 @@ Route::get('/languages', function () {
     return response()->json(['success' => true, 'data' => DB::table('languages')->get()]);
 });
 
-// Получение одного поста
 Route::get('/posts/{id}', function ($id) {
     $userId = auth('sanctum')->id() ?? 0;
-    $post = DB::table('posts')->find($id);
+    
+    $post = DB::table('posts')
+        ->leftJoin('users', 'posts.user_id', '=', 'users.id')
+        ->select('posts.*', 'users.name as author')
+        ->where('posts.id', $id)
+        ->first();
+
     if (!$post) return response()->json(['success' => false, 'message' => 'Post not found'], 404);
 
     $post->likes = DB::table('post_likes')->where('post_id', $id)->count();
-    $post->liked_by_me = DB::table('post_likes')->where('post_id', $id)->where('user_id', $userId)->exists();
+    $post->liked_by_me = $userId ? DB::table('post_likes')->where('post_id', $id)->where('user_id', $userId)->exists() : false;
     
-    // Добавляем картинку на страницу детального просмотра
     $img = DB::table('post_images')->where('post_id', $id)->first();
     $post->image_url = $img ? '/uploads/' . $img->file_name : null;
 
     return response()->json(['success' => true, 'data' => $post]);
 });
 
-// Публичный профиль
 Route::get('/users/{id}/profile', function ($id) {
     $currentUserId = auth('sanctum')->id() ?? 0;
     $user = DB::table('users')->find($id);
@@ -46,43 +46,43 @@ Route::get('/users/{id}/profile', function ($id) {
     $user->total_likes = DB::table('post_likes')->join('posts', 'post_likes.post_id', '=', 'posts.id')->where('posts.user_id', $id)->count();
     $user->is_subscribed = $currentUserId ? DB::table('subscriptions')->where('follower_id', $currentUserId)->where('following_id', $id)->exists() : false;
 
-    $posts = DB::table('posts')->where('user_id', $id)->orderBy('id', 'desc')->get();
+    $posts = DB::table('posts')
+        ->leftJoin('users', 'posts.user_id', '=', 'users.id')
+        ->select('posts.*', 'users.name as author')
+        ->where('posts.user_id', $id)
+        ->orderBy('posts.id', 'desc')
+        ->get();
+
     foreach ($posts as $post) {
         $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
+        $post->liked_by_me = $currentUserId ? DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $currentUserId)->exists() : false;
         $img = DB::table('post_images')->where('post_id', $post->id)->first();
-        $post->image_url = $img ? '/uploads/' . $img->file_name : null; // Жестко /uploads/
+        $post->image_url = $img ? '/uploads/' . $img->file_name : null;
     }
     $user->posts = $posts;
 
     return response()->json(['success' => true, 'data' => $user]);
 });
 
-// ==========================================
-// АВТОРИЗАЦИЯ
-// ==========================================
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-// ==========================================
-// ЗАЩИЩЕННЫЕ МАРШРУТЫ
-// ==========================================
 Route::middleware('auth:sanctum')->group(function () {
 
-    // --- ЗАГРУЗКА ИЗОБРАЖЕНИЙ ---
     Route::post('/images/upload', function (Request $request) {
         $request->validate(['image' => 'required|image', 'post_id' => 'required|integer']);
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads'), $filename); // Сохраняем прямо в public/uploads
+            $file->move(public_path('uploads'), $filename);
             DB::table('post_images')->insert(['post_id' => $request->post_id, 'file_name' => $filename, 'created_at' => now()]);
             return response()->json(['success' => true, 'filename' => $filename]);
         }
         return response()->json(['success' => false], 400);
     });
 
-    // --- ПРОФИЛЬ ---
     Route::get('/user', function (Request $request) { return $request->user(); });
+    
     Route::get('/users/me/profile', function () { 
         $id = auth()->id();
         $user = DB::table('users')->find($id);
@@ -91,11 +91,18 @@ Route::middleware('auth:sanctum')->group(function () {
         $user->total_likes = DB::table('post_likes')->join('posts', 'post_likes.post_id', '=', 'posts.id')->where('posts.user_id', $id)->count();
         $user->is_subscribed = false;
         
-        $posts = DB::table('posts')->where('user_id', $id)->orderBy('id', 'desc')->get();
+        $posts = DB::table('posts')
+            ->leftJoin('users', 'posts.user_id', '=', 'users.id')
+            ->select('posts.*', 'users.name as author')
+            ->where('posts.user_id', $id)
+            ->orderBy('posts.id', 'desc')
+            ->get();
+
         foreach ($posts as $post) {
             $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
+            $post->liked_by_me = DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $id)->exists();
             $img = DB::table('post_images')->where('post_id', $post->id)->first();
-            $post->image_url = $img ? '/uploads/' . $img->file_name : null; // Жестко /uploads/
+            $post->image_url = $img ? '/uploads/' . $img->file_name : null;
         }
         $user->posts = $posts;
         return response()->json(['success' => true, 'data' => $user]); 
@@ -132,7 +139,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['success' => true]);
     });
 
-    // --- АДМИНКА ---
     Route::get('/admin/languages', function () { return response()->json(['success' => true, 'data' => DB::table('languages')->get()]); });
     Route::post('/admin/languages', function (Request $request) {
         $id = DB::table('languages')->insertGetId(['code' => $request->code, 'name' => $request->name, 'is_active' => $request->is_active ?? 1]);
@@ -175,23 +181,23 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['success' => true]);
     });
 
-    // --- ПОСТЫ ---
     Route::post('/posts', function (Request $request) {
         $id = DB::table('posts')->insertGetId(['title' => $request->title, 'content' => $request->content, 'user_id' => auth()->id(), 'created_at' => now()]);
         return response()->json(['success' => true, 'data' => DB::table('posts')->find($id)]);
     });
+    
     Route::put('/posts/{id}', function (Request $request, $id) {
         $post = DB::table('posts')->find($id);
         if ($post->user_id !== auth()->id()) return response()->json(['success' => false, 'message' => 'Чужой пост'], 403);
         DB::table('posts')->where('id', $id)->update(['title' => $request->title, 'content' => $request->content]);
         return response()->json(['success' => true]);
     });
+    
     Route::delete('/posts/{id}', function ($id) {
         DB::table('posts')->where('id', $id)->delete();
         return response()->json(['success' => true]);
     });
 
-    // --- ЛАЙКИ И КОММЕНТАРИИ ---
     Route::post('/posts/{id}/like', function (Request $request, $id) {
         $userId = auth()->id();
         $existingLike = DB::table('post_likes')->where('post_id', $id)->where('user_id', $userId)->first();

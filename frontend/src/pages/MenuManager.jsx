@@ -20,10 +20,8 @@ export default function MenuManager({ user, lang }) {
   const load = async () => {
     try {
       const response = await api.getMenu(lang);
-      // Laravel возвращает { success: true, data: [...] }
       const flatItems = response.data || [];
       
-      // Строим дерево из плоского списка
       const buildTree = (list, parent = null) => {
         return list
           .filter(item => item.parent_id === parent)
@@ -44,16 +42,13 @@ export default function MenuManager({ user, lang }) {
   useEffect(() => {
     api.getPublicLanguages()
       .then(response => {
-        // Исправлено: получаем массив из response.data
         const langs = response.data || [];
         setLanguages(langs);
         
-        // Инициализируем пустые переводы
         const initial = {};
         langs.forEach(l => { initial[l.code] = ""; });
         setTranslations(initial);
         
-        // Ищем активный язык
         const active = langs.find(l => l.is_active === 1) || langs[0];
         if (active) setActiveTab(active.code);
       })
@@ -110,10 +105,9 @@ export default function MenuManager({ user, lang }) {
       return;
     }
 
-    // Формируем данные для отправки в Laravel
     const data = {
-      title: mainName.trim(), // Laravel контроллер ждет title (или name, мы там обрабатываем оба варианта)
-      name: mainName.trim(),  // Дублируем для надежности
+      title: mainName.trim(),
+      name: mainName.trim(),
       url: url || null,
       parent_id: parentId ? Number(parentId) : null,
     };

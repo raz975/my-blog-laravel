@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
-import { t } from "../translations.js";
+import { t } from "../translations.js"; 
 
 export default function Languages({ user, lang }) {
   const [languages, setLanguages] = useState([]);
@@ -32,7 +32,7 @@ export default function Languages({ user, lang }) {
   };
 
   const remove = async (id) => {
-    if (!confirm("Удалить этот язык?")) return;
+    if (!confirm(t(lang, "confirmDelete") || "Удалить этот язык?")) return;
     try {
       await api.deleteLanguage(id);
       load();
@@ -42,7 +42,7 @@ export default function Languages({ user, lang }) {
   const submit = async (e) => {
     e.preventDefault();
     if (!code.trim() || !name.trim()) {
-      setError("Заполните код и название");
+      setError(t(lang, "fillFields") || "Заполните код и название");
       return;
     }
     setLoading(true);
@@ -78,9 +78,8 @@ export default function Languages({ user, lang }) {
   };
 
   return (
-    <div style={{ display: "flex", gap: "30px", maxWidth: "1000px", margin: "30px auto", color: "var(--text-main)", fontFamily: "Franklin Gothic Medium", alignItems: "flex-start" }}>
+    <div style={{ display: "flex", gap: "30px", maxWidth: "1000px", margin: "30px auto", color: "var(--text-main)", fontFamily: "Franklin Gothic Medium", alignItems: "flex-start", gap: "40px" }}>
       
-      {/* ЛЕВАЯ ЧАСТЬ: Таблица со списком языков */}
       <div style={{ flex: 1 }}>
         <h1 style={{ margin: "0 0 20px" }}>{t(lang, "languages") || "Языки"}</h1>
         {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
@@ -89,9 +88,9 @@ export default function Languages({ user, lang }) {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--bg-row-alt)" }}>
-                <th style={cellStyle}>Код</th>
-                <th style={cellStyle}>Название</th>
-                <th style={cellStyle}>Действия</th>
+                <th style={cellStyle}>{t(lang, "code")}</th>
+                <th style={cellStyle}>{t(lang, "name")}</th>
+                <th style={cellStyle}>{t(lang, "actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -100,8 +99,12 @@ export default function Languages({ user, lang }) {
                   <td style={cellStyle}>{l.code}</td>
                   <td style={cellStyle}>{l.name}</td>
                   <td style={{ ...cellStyle, display: "flex", gap: "8px" }}>
-                    <button onClick={() => edit(l)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}>Изменить</button>
-                    <button onClick={() => remove(l.id)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}>Удалить</button>
+                    <button onClick={() => edit(l)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}>
+                      {t(lang, "edit")}
+                    </button>
+                    <button onClick={() => remove(l.id)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}>
+                      {t(lang, "delete")}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -110,7 +113,6 @@ export default function Languages({ user, lang }) {
         </div>
       </div>
 
-      {/* ПРАВАЯ ЧАСТЬ: Форма создания (Теперь она показывается ВСЕГДА) */}
       <div style={{ 
         width: "340px", 
         background: "var(--bg-card)", 
@@ -118,21 +120,22 @@ export default function Languages({ user, lang }) {
         borderRadius: "14px", 
         padding: "20px", 
         boxSizing: "border-box",
-        color: "var(--text-main)" 
+        color: "var(--text-main)",
+        marginTop: "50px"
       }}>
         <h2 style={{ margin: "0 0 20px" }}>
-          {editingId ? "Изменить язык" : "Добавить язык"}
+          {editingId ? t(lang, "editLanguage") : t(lang, "addLanguage")}
         </h2>
         <form onSubmit={submit}>
           <input 
             style={inputStyle} 
-            placeholder="Код (ru/en/hy)" 
+            placeholder={t(lang, "enterCode")} 
             value={code} 
             onChange={e => setCode(e.target.value)} 
           />
           <input 
             style={inputStyle} 
-            placeholder="Название" 
+            placeholder={t(lang, "enterName")} 
             value={name} 
             onChange={e => setName(e.target.value)} 
           />
@@ -142,16 +145,11 @@ export default function Languages({ user, lang }) {
               type="submit" 
               disabled={loading} 
               style={{ 
-                border: "none", 
-                borderRadius: "10px", 
-                padding: "9px 17px", 
-                cursor: "pointer", 
-                background: "var(--accent)", 
-                color: "white",
-                fontFamily: "Franklin Gothic Medium"
+                border: "none", borderRadius: "10px", padding: "9px 17px", 
+                cursor: "pointer", background: "var(--accent)", color: "white", fontFamily: "Franklin Gothic Medium"
               }}
             >
-              {loading ? "Сохранение..." : editingId ? "Сохранить" : "Создать"}
+              {loading ? t(lang, "saving") : editingId ? t(lang, "save") : t(lang, "create")}
             </button>
             
             {editingId && (
@@ -159,16 +157,11 @@ export default function Languages({ user, lang }) {
                 type="button" 
                 onClick={reset} 
                 style={{ 
-                  border: "none", 
-                  borderRadius: "10px", 
-                  padding: "9px 17px", 
-                  cursor: "pointer", 
-                  background: "var(--danger)", 
-                  color: "white",
-                  fontFamily: "Franklin Gothic Medium"
+                  border: "none", borderRadius: "10px", padding: "9px 17px", 
+                  cursor: "pointer", background: "var(--danger)", color: "white", fontFamily: "Franklin Gothic Medium"
                 }}
               >
-                Отмена
+                {t(lang, "cancel")}
               </button>
             )}
           </div>

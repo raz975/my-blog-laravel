@@ -13,7 +13,6 @@ export default function EditPost({ user, lang }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Загружаем текущий пост при открытии страницы
   useEffect(() => {
     api.getPost(id, lang)
       .then(response => {
@@ -31,13 +30,13 @@ export default function EditPost({ user, lang }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setError("Заполните заголовок и текст");
+      setError(t(lang, "fillFields") || "Заполните заголовок и текст");
       return;
     }
     setSaving(true);
     try {
       await api.updatePost({ id, title, content });
-      navigate(`/posts/${id}`); // Возвращаемся на страницу поста
+      navigate(`/posts/${id}`); 
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,58 +45,27 @@ export default function EditPost({ user, lang }) {
   };
 
   const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid var(--border-input)",
-    borderRadius: "9px",
-    fontFamily: "Franklin Gothic Medium",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "var(--bg-input)",
-    color: "var(--text-main)",
-    marginBottom: "15px"
+    width: "100%", padding: "10px 12px", border: "1px solid var(--border-input)",
+    borderRadius: "9px", fontFamily: "Franklin Gothic Medium", boxSizing: "border-box",
+    outline: "none", background: "var(--bg-input)", color: "var(--text-main)", marginBottom: "15px"
   };
 
-  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>Загрузка...</p>;
+  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>{t(lang, "loading") || "Загрузка..."}</p>;
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
       <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "30px" }}>
-        <h1 style={{ margin: "0 0 20px", textAlign: "center" }}>Редактировать пост</h1>
+        <h1 style={{ margin: "0 0 20px", textAlign: "center" }}>{t(lang, "editPost") || "Редактировать пост"}</h1>
 
         {error && <p style={{ color: "var(--danger)", marginBottom: "15px" }}>{error}</p>}
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
-          <input
-            style={inputStyle}
-            type="text"
-            placeholder="Заголовок"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <input style={inputStyle} type="text" placeholder={t(lang, "title") || "Заголовок"} value={title} onChange={(e) => setTitle(e.target.value)} />
 
-          <textarea
-            style={{ ...inputStyle, minHeight: "150px", resize: "vertical" }}
-            placeholder="Текст поста..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <textarea style={{ ...inputStyle, minHeight: "150px", resize: "vertical" }} placeholder={t(lang, "content") || "Текст поста..."} value={content} onChange={(e) => setContent(e.target.value)} />
 
-          <button 
-            type="submit" 
-            disabled={saving}
-            style={{ 
-              border: "none", 
-              borderRadius: "10px", 
-              padding: "12px", 
-              cursor: saving ? "not-allowed" : "pointer", 
-              background: "var(--accent)", 
-              color: "white",
-              fontFamily: "Franklin Gothic Medium",
-              fontSize: "16px"
-            }}
-          >
-            {saving ? "Сохранение..." : "Сохранить изменения"}
+          <button type="submit" disabled={saving} style={{ border: "none", borderRadius: "10px", padding: "12px", cursor: saving ? "not-allowed" : "pointer", background: "var(--accent)", color: "white", fontFamily: "Franklin Gothic Medium", fontSize: "16px" }}>
+            {saving ? (t(lang, "saving") || "Сохранение...") : (t(lang, "save") || "Сохранить изменения")}
           </button>
         </form>
       </div>

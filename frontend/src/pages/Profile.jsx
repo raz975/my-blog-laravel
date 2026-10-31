@@ -10,10 +10,8 @@ export default function Profile({ user: currentUser, lang }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // Состояние для модалки настроек
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Состояния для формы настроек
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [oldPassword, setOldPassword] = useState("");
@@ -31,7 +29,6 @@ export default function Profile({ user: currentUser, lang }) {
       .then(res => {
         const data = res.data || res;
         setProfile(data);
-        // Заполняем форму текущими данными
         setName(data.name || "");
         setEmail(data.email || "");
         setLoading(false);
@@ -58,7 +55,6 @@ export default function Profile({ user: currentUser, lang }) {
     }
   };
 
-  // Сохранение имени и email
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -66,8 +62,8 @@ export default function Profile({ user: currentUser, lang }) {
     setSuccessMsg("");
     try {
       await api.updateProfile({ name, email });
-      setSuccessMsg("Данные профиля обновлены!");
-      loadProfile(); // Обновляем данные на странице
+      setSuccessMsg(t(lang, "profileUpdated") || "Данные профиля обновлены!");
+      loadProfile();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,11 +71,10 @@ export default function Profile({ user: currentUser, lang }) {
     }
   };
 
-  // Смена пароля
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (!oldPassword || !newPassword) {
-      setError("Заполните оба поля пароля");
+      setError(t(lang, "fillFields") || "Заполните оба поля пароля");
       return;
     }
     setSaving(true);
@@ -87,7 +82,7 @@ export default function Profile({ user: currentUser, lang }) {
     setSuccessMsg("");
     try {
       await api.changePassword({ old_password: oldPassword, new_password: newPassword });
-      setSuccessMsg("Пароль успешно изменен!");
+      setSuccessMsg(t(lang, "passwordChanged") || "Пароль успешно изменен!");
       setOldPassword("");
       setNewPassword("");
     } catch (err) {
@@ -98,108 +93,96 @@ export default function Profile({ user: currentUser, lang }) {
   };
 
   const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid var(--border-input)",
-    borderRadius: "9px",
-    fontFamily: "Franklin Gothic Medium",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "var(--bg-input)",
-    color: "var(--text-main)",
-    marginBottom: "10px"
+    width: "100%", padding: "10px 12px", border: "1px solid var(--border-input)",
+    borderRadius: "9px", fontFamily: "Franklin Gothic Medium", boxSizing: "border-box",
+    outline: "none", background: "var(--bg-input)", color: "var(--text-main)", marginBottom: "10px"
   };
 
-  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>Загрузка...</p>;
+  if (loading) return <p style={{ textAlign: "center", marginTop: "50px", color: "var(--text-main)" }}>{t(lang, "loading") || "Загрузка..."}</p>;
   if (error) return <p style={{ textAlign: "center", color: "var(--danger)", marginTop: "50px" }}>{error}</p>;
 
   return (
     <div style={{ maxWidth: "900px", margin: "30px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
       
-      {/* Шапка профиля */}
       <div style={{ background: "var(--bg-card)", padding: "30px", borderRadius: "14px", boxShadow: "var(--shadow)", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ margin: "0 0 10px" }}>{profile.name}</h1>
           <p style={{ color: "var(--text-muted)", margin: "0 0 15px" }}>{profile.email}</p>
           
           <div style={{ display: "flex", gap: "20px", fontSize: "14px" }}>
-            <span><strong>{profile.posts?.length || 0}</strong> постов</span>
-            <span><strong>{profile.followers}</strong> подписчиков</span>
-            <span><strong>{profile.following}</strong> подписок</span>
-            <span>❤️ <strong>{profile.total_likes}</strong> лайков</span>
+            <span><strong>{profile.posts?.length || 0}</strong> {t(lang, "posts") || "постов"}</span>
+            <span><strong>{profile.followers}</strong> {t(lang, "followers") || "подписчиков"}</span>
+            <span><strong>{profile.following}</strong> {t(lang, "following") || "подписок"}</span>
+            <span>❤️ <strong>{profile.total_likes}</strong> {t(lang, "likesReceived") || "лайков"}</span>
           </div>
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
           {isMyProfile ? (
             <button onClick={() => setIsSettingsOpen(true)} style={{ background: "var(--bg-hover)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "var(--text-main)" }}>
-              ⚙️ Настройки
+              ⚙️ {t(lang, "settings") || "Настройки"}
             </button>
           ) : (
             <button onClick={handleSubscribe} style={{ background: profile.is_subscribed ? "var(--danger)" : "var(--accent)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "white" }}>
-              {profile.is_subscribed ? "Отписаться" : "Подписаться"}
+              {profile.is_subscribed ? (t(lang, "unsubscribe") || "Отписаться") : (t(lang, "subscribe") || "Подписаться")}
             </button>
           )}
         </div>
       </div>
 
-      {/* Посты автора */}
-      <h2 style={{ marginBottom: "15px" }}>Посты автора</h2>
+      <h2 style={{ marginBottom: "15px" }}>{t(lang, "authorPosts") || "Посты автора"}</h2>
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-        {profile.posts?.length === 0 && <p style={{ color: "var(--text-muted)" }}>У пользователя пока нет постов.</p>}
+        {profile.posts?.length === 0 && <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts") || "У пользователя пока нет постов."}</p>}
         {profile.posts?.map(post => (
           <div key={post.id} style={{ background: "var(--bg-card)", borderRadius: "14px", padding: "15px", width: "240px", boxShadow: "var(--shadow)" }}>
             {post.image_url && (
               <img src={"http://127.0.0.1:8000" + post.image_url} alt="" style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} />
             )}
             <h3 style={{ margin: "0 0 5px", fontSize: "16px" }}>{post.title}</h3>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "10px" }}>❤️ {post.likes} лайков</p>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "10px" }}>❤️ {post.likes} {t(lang, "likes") || "лайков"}</p>
             <Link to={`/posts/${post.id}`} style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "5px 10px", borderRadius: "6px", fontSize: "12px", display: "inline-block" }}>
-              Читать
+              {t(lang, "readMore") || "Подробнее"}
             </Link>
           </div>
         ))}
       </div>
 
-      {/* Модалка настроек с формами */}
       {isSettingsOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ background: "var(--bg-card)", padding: "30px", borderRadius: "14px", width: "450px", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ margin: 0 }}>Настройки профиля</h2>
+              <h2 style={{ margin: 0 }}>{t(lang, "settings") || "Настройки профиля"}</h2>
               <button onClick={() => setIsSettingsOpen(false)} style={{ background: "transparent", border: "none", fontSize: "24px", cursor: "pointer", color: "var(--text-main)" }}>✕</button>
             </div>
 
             {successMsg && <p style={{ color: "var(--success)", marginBottom: "15px", textAlign: "center" }}>{successMsg}</p>}
 
-            {/* Форма 1: Имя и Email */}
             <form onSubmit={handleUpdateProfile} style={{ marginBottom: "30px" }}>
-              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>Личные данные</h3>
+              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>{t(lang, "personalInfo") || "Личные данные"}</h3>
               
-              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>Имя</label>
+              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>{t(lang, "name") || "Имя"}</label>
               <input style={inputStyle} type="text" value={name} onChange={e => setName(e.target.value)} />
 
               <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>Email</label>
               <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} />
 
               <button type="submit" disabled={saving} style={{ width: "100%", background: "var(--accent)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}>
-                {saving ? "Сохранение..." : "Сохранить данные"}
+                {saving ? (t(lang, "saving") || "Сохранение...") : (t(lang, "saveData") || "Сохранить данные")}
               </button>
             </form>
 
-            {/* Форма 2: Смена пароля */}
             <form onSubmit={handleChangePassword}>
-              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>Смена пароля</h3>
+              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>{t(lang, "changePassword") || "Смена пароля"}</h3>
               
-              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>Текущий пароль</label>
+              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>{t(lang, "currentPassword") || "Текущий пароль"}</label>
               <input style={inputStyle} type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} />
 
-              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>Новый пароль</label>
+              <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>{t(lang, "newPassword") || "Новый пароль"}</label>
               <input style={inputStyle} type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
 
               <button type="submit" disabled={saving} style={{ width: "100%", background: "var(--danger)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}>
-                {saving ? "Смена..." : "Изменить пароль"}
+                {saving ? (t(lang, "changing") || "Смена...") : (t(lang, "changePassword") || "Изменить пароль")}
               </button>
             </form>
 

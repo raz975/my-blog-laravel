@@ -23,9 +23,10 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
 
   return (
     <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
+      
+      {/* Меню для авторизованных пользователей */}
       {user && (
         <>
-
           {isAdmin && (
             <select
               value=""
@@ -44,11 +45,11 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
           <Link to="/" style={linkStyle}>{t(lang, "posts")}</Link>
           <Link to="/menu" style={linkStyle}>{t(lang, "manageMenu")}</Link>
           <Link to="/create" style={linkStyle}>{t(lang, "createPost")}</Link>
-
           <Link to="/profile" style={linkStyle}>{t(lang, "profile")}</Link>
         </>
       )}
 
+      {/* Меню для гостей (неавторизованных) */}
       {!user && (
         <>
           <Link to="/login" style={linkStyle}>{t(lang, "login")}</Link>
@@ -56,11 +57,21 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
         </>
       )}
 
+      {/* Правая часть: тема, языки, выход */}
       <div style={{ marginLeft: "auto", display: "flex", gap: "10px", alignItems: "center" }}>
         <ThemeToggle />
         <LanguageSelector lang={lang} setLang={setLang} />
+        
+        {/* ВОТ ИСПРАВЛЕНИЕ: кнопка "Выйти" показывается только если user не null */}
+        {user && (
+          <button 
+            onClick={onLogout} 
+            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}
+          >
+            {t(lang, "logout")}
+          </button>
+        )}
       </div>
-      <button onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>{t(lang, "logout")}</button>
     </nav>
   );
 }

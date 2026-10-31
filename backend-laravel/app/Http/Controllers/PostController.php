@@ -12,26 +12,24 @@ class PostController extends Controller
         $userId = auth('sanctum')->id() ?? 0;
         $search = $request->query('search');
         
-        $query = DB::table('posts');
+        $query = DB::table('posts')
+            ->leftJoin('users', 'posts.user_id', '=', 'users.id')
+            ->select('posts.*', 'users.name as author');
 
         if ($search) {
-            $query->where('title', 'like', "%{$search}%");
+            $query->where('posts.title', 'like', "%{$search}%");
         }
 
-        // Сортируем посты
         try {
-            $posts = $query->orderBy('created_at', 'desc')->get();
+            $posts = $query->orderBy('posts.created_at', 'desc')->get();
         } catch (\Exception $e) {
-            $posts = $query->orderBy('id', 'desc')->get();
+            $posts = $query->orderBy('posts.id', 'desc')->get();
         }
 
-        // ВОТ ГЛАВНЫЙ БЛОК: прикрепляем картинки и лайки
         foreach ($posts as $post) {
-            // 1. Лайки
             $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
             $post->liked_by_me = DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $userId)->exists();
             
-            // 2. Картинки
             $img = DB::table('post_images')->where('post_id', $post->id)->first();
             $post->image_url = $img ? '/uploads/' . $img->file_name : null;
         }

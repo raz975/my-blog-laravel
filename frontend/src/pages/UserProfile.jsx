@@ -6,7 +6,7 @@ import CommentsModal from "../components/CommentsModal.jsx";
 
 function PostMiniCard({ post, lang, user, onOpenComments }) {
   const [likes, setLikes] = useState(post.likes || 0);
-  const [likedByMe, setLikedByMe] = useState(post.liked_by_me === 1);
+  const [likedByMe, setLikedByMe] = useState(!!post.liked_by_me);
   const [loading, setLoading] = useState(false);
 
   const toggleLike = async e => {
@@ -28,57 +28,34 @@ function PostMiniCard({ post, lang, user, onOpenComments }) {
     onOpenComments(post);
   };
 
+  const hasContent = post.content && post.content.trim().length > 1 && post.content.trim() !== ".";
+
   return (
-    <Link
-      to={`/posts/${post.id}`}
-      style={{ 
-        background: "var(--bg-card)", 
-        borderRadius: "14px", 
-        padding: "15px", 
-        boxShadow: "var(--shadow-small)", 
-        width: "220px", 
-        boxSizing: "border-box", 
-        textDecoration: "none", 
-        color: "var(--text-main)", 
-        display: "flex", 
-        flexDirection: "column",
-        height: "260px"
-      }}
-    >
+    <Link to={`/posts/${post.id}`} style={{ background: "var(--bg-card)", borderRadius: "14px", padding: "15px", boxShadow: "var(--shadow-small)", width: "220px", boxSizing: "border-box", textDecoration: "none", color: "var(--text-main)", display: "flex", flexDirection: "column", height: "260px" }}>
       <div style={{ flexShrink: 0, marginBottom: "10px" }}>
         {post.image_url ? (
-          <img 
-            src={"http://127.0.0.1:8000" + post.image_url} 
-            alt={post.title} 
-            style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }} 
-            onError={e => { e.target.style.display = "none"; }} 
-          />
+          <img src={"http://127.0.0.1:8000" + post.image_url} alt={post.title} style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }} onError={e => { e.target.style.display = "none"; }} />
         ) : (
-          <div style={{ width: "100%", height: "100px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>нет картинки</div>
+          <div style={{ width: "100%", height: "100px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>
+            {t(lang, "noImage") || "нет картинки"}
+          </div>
         )}
       </div>
 
       <div style={{ flex: 1, overflow: "hidden" }}>
         <h3 style={{ margin: "0 0 5px", fontSize: "16px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h3>
-        <p style={{ margin: "0", fontSize: "12px", color: "var(--text-secondary)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {post.content}
-        </p>
+        {hasContent && (
+          <p style={{ margin: "0", fontSize: "12px", color: "var(--text-secondary)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {post.content}
+          </p>
+        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "auto" }}>
-        <button 
-          onClick={toggleLike} 
-          disabled={loading || !user} 
-          style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "14px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}
-        >
+        <button onClick={toggleLike} disabled={loading || !user} style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "14px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}>
           {likedByMe ? "❤️" : "🤍"} {likes}
         </button>
-        <button 
-          onClick={openComments} 
-          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "14px", padding: "4px", color: "var(--text-muted)" }}
-        >
-          💬
-        </button>
+        <button onClick={openComments} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "14px", padding: "4px", color: "var(--text-muted)" }}>💬</button>
       </div>
     </Link>
   );
@@ -109,11 +86,8 @@ export default function UserProfile({ user, lang }) {
     if (!user || subLoading) return;
     setSubLoading(true);
     try {
-      if (profile.is_subscribed) {
-        await api.unsubscribe(profile.id);
-      } else {
-        await api.subscribe(profile.id);
-      }
+      if (profile.is_subscribed) await api.unsubscribe(profile.id);
+      else await api.subscribe(profile.id);
       load();
     } catch (e) {
       alert(e.message);
@@ -164,9 +138,7 @@ export default function UserProfile({ user, lang }) {
         )}
       </div>
 
-      {openComments && (
-        <CommentsModal post={openComments} user={user} lang={lang} onClose={() => setOpenComments(null)} />
-      )}
+      {openComments && <CommentsModal post={openComments} user={user} lang={lang} onClose={() => setOpenComments(null)} />}
     </>
   );
 }

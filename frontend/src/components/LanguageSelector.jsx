@@ -8,7 +8,7 @@ export default function LanguageSelector({ lang, setLang }) {
   useEffect(() => {
     api.getPublicLanguages()
       .then(response => {
-        // Универсальная проверка: данные могут быть в response.data, response.languages или в самом response
+
         let langs = [];
         if (Array.isArray(response)) {
           langs = response;
@@ -18,7 +18,6 @@ export default function LanguageSelector({ lang, setLang }) {
           langs = response.languages;
         }
 
-        // Если данные есть - ставим их, если нет - ставим дефолтные
         if (langs.length > 0) {
           setLanguages(langs);
         } else {
@@ -32,7 +31,6 @@ export default function LanguageSelector({ lang, setLang }) {
       })
       .catch((error) => {
         console.error("Ошибка при загрузке языков:", error);
-        // В случае ошибки тоже ставим дефолтные языки, чтобы не висела "Загрузка"
         setLanguages([
           { id: 1, code: "ru", name: "Русский" },
           { id: 2, code: "en", name: "English" },

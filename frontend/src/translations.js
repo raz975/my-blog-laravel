@@ -54,7 +54,7 @@ export const translations = {
     securityTab: "Безопасность",
     joinedAt: "Дата регистрации",
     cannotSubscribeSelf: "Нельзя подписаться на себя",
-      code: "Код",
+    code: "Код",
     name: "Название",
     actions: "Действия",
     addLanguage: "Добавить язык",
@@ -66,6 +66,8 @@ export const translations = {
     cancel: "Отмена",
     edit: "Изменить",
     delete: "Удалить",
+    dark: "Тёмная 🌙",
+    light: "Светлая ☀️",
   },
   en: {
     posts: "Posts", manageMenu: "Menu", createPost: "Create Post",
@@ -121,7 +123,7 @@ export const translations = {
     securityTab: "Security",
     joinedAt: "Joined",
     cannotSubscribeSelf: "Cannot subscribe to yourself",
-     code: "Code",
+    code: "Code",
     name: "Name",
     actions: "Actions",
     addLanguage: "Add Language",
@@ -133,6 +135,8 @@ export const translations = {
     cancel: "Cancel",
     edit: "Edit",
     delete: "Delete",
+    dark: "Dark 🌙",
+    light: "Light ☀️",
   },
   hy: {
     posts: "Գրառումներ", manageMenu: "Մենյու", createPost: "Ստեղծել",
@@ -188,7 +192,7 @@ export const translations = {
     securityTab: "Անվտանգություն",
     joinedAt: "Գրանցման ամսաթիվ",
     cannotSubscribeSelf: "Չեք կարող բաժանորդագրվել ինքներդ ձեզ",
-       code: "Կոդ",
+    code: "Կոդ",
     name: "Անվանում",
     actions: "Գործողություններ",
     addLanguage: "Ավելացնել լեզու",
@@ -200,6 +204,8 @@ export const translations = {
     cancel: "Չեղարկել",
     edit: "Փոփոխել",
     delete: "Ջնջել",
+    dark: "Մուգ 🌙",
+    light: "Բաց ☀️",
   }
 };
 

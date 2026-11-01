@@ -23,6 +23,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState(() => localStorage.getItem("language") || "ru");
+  
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const saved = localStorage.getItem("user");
@@ -33,6 +35,15 @@ function App() {
   }, []);
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "light" ? "dark" : "light");
+  };
 
   const login = u => {
     setUser(u);
@@ -49,7 +60,14 @@ function App() {
 
   return (
     <>
-      <Navbar user={user} onLogout={logout} lang={lang} setLang={setLang} />
+      <Navbar 
+        user={user} 
+        onLogout={logout} 
+        lang={lang} 
+        setLang={setLang} 
+        theme={theme} 
+        toggleTheme={toggleTheme} 
+      />
 
       <main style={{ padding: "25px" }}>
         <Routes>

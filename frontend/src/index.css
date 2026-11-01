@@ -7,7 +7,7 @@
 :root {
   --bg-main: #f1f5f9;       
   --bg-card: #ffffff;       
-  --bg-nav: rgba(255, 255, 255, 0.85);
+  --bg-nav: rgba(255, 255, 255, 0.9);
   --bg-input: #f8fafc;
   --bg-row: #ffffff;
   --bg-row-alt: #f8fafc;
@@ -37,7 +37,7 @@
 [data-theme="dark"] {
   --bg-main: #0f172a;       
   --bg-card: #1e293b;       
-  --bg-nav: rgba(30, 41, 59, 0.85);
+  --bg-nav: rgba(30, 41, 59, 0.9);
   --bg-input: #334155;
   --bg-row: #1e293b;
   --bg-row-alt: #0f172a;
@@ -81,27 +81,13 @@ body {
 }
 
 nav {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color) !important;
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-a, button, input, select, textarea {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-button:not(:disabled):hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-small);
-}
-
-button:not(:disabled):active {
-  transform: translateY(1px);
-  box-shadow: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 ::selection {
@@ -109,16 +95,31 @@ button:not(:disabled):active {
   color: white;
 }
 
+a, button, input, select, textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:not(:disabled):hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-small);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: none;
+}
+
 input, textarea, select {
   background: var(--bg-input) !important;
   color: var(--text-main) !important;
   border: 1px solid var(--border-input) !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.01) !important;
   outline: none;
   background: var(--bg-card) !important; 
 }

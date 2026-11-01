@@ -1,15 +1,24 @@
-import { useTheme } from "../context/ThemeContext.jsx";
+import { t } from "../translations.js";
 
-export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+export default function ThemeToggle({ lang, theme, toggleTheme }) {
+  if (typeof toggleTheme !== "function") return null; 
 
   return (
-    <button
-      onClick={toggleTheme}
-      title={theme === "light" ? "Тёмная тема" : "Светлая тема"}
-      style={{border: "1px solid var(--border-color)", borderRadius: "10px", padding: "6px 10px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--bg-card)", color: "var(--text-main)", fontSize: "16px", transition: "background 0.2s"}}
+    <button 
+      onClick={toggleTheme} 
+      style={{ 
+        border: "none", 
+        background: "var(--bg-hover)", 
+        padding: "8px 12px", 
+        borderRadius: "10px", 
+        cursor: "pointer", 
+        color: "var(--text-main)",
+        fontFamily: "Franklin Gothic Medium"
+      }}
     >
-      {theme === "light" ? "dark🌙" : "light☀️"}
+      {theme === "dark" 
+        ? (t(lang, "light") || "light ☀️") 
+        : (t(lang, "dark") || "dark 🌙")}
     </button>
   );
 }

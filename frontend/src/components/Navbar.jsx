@@ -3,7 +3,7 @@ import LanguageSelector from "./LanguageSelector.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { t } from "../translations.js";
 
-export default function Navbar({ user, onLogout, lang, setLang }) {
+export default function Navbar({ user, onLogout, lang, setLang, theme, toggleTheme }) {
   const isAdmin = user?.role === "admin";
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
   return (
     <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
       
-      {/* Меню для авторизованных пользователей */}
       {user && (
         <>
           {isAdmin && (
@@ -49,7 +48,6 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
         </>
       )}
 
-      {/* Меню для гостей (неавторизованных) */}
       {!user && (
         <>
           <Link to="/login" style={linkStyle}>{t(lang, "login")}</Link>
@@ -57,12 +55,10 @@ export default function Navbar({ user, onLogout, lang, setLang }) {
         </>
       )}
 
-      {/* Правая часть: тема, языки, выход */}
       <div style={{ marginLeft: "auto", display: "flex", gap: "10px", alignItems: "center" }}>
-        <ThemeToggle />
+        <ThemeToggle lang={lang} theme={theme} toggleTheme={toggleTheme} />
         <LanguageSelector lang={lang} setLang={setLang} />
         
-        {/* ВОТ ИСПРАВЛЕНИЕ: кнопка "Выйти" показывается только если user не null */}
         {user && (
           <button 
             onClick={onLogout} 

@@ -88,9 +88,9 @@ export default function Languages({ user, lang }) {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--bg-row-alt)" }}>
-                <th style={cellStyle}>{t(lang, "code")}</th>
-                <th style={cellStyle}>{t(lang, "name")}</th>
-                <th style={cellStyle}>{t(lang, "actions")}</th>
+                <th style={{cellStyle, width: "150px" }}>{t(lang, "code")}</th>
+                <th style={{cellStyle, width: "150px" }}>{t(lang, "name")}</th>
+                <th style={{cellStyle, width: "150px" }}>{t(lang, "actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -98,11 +98,11 @@ export default function Languages({ user, lang }) {
                 <tr key={l.id} style={{ background: "var(--bg-row)" }}>
                   <td style={cellStyle}>{l.code}</td>
                   <td style={cellStyle}>{l.name}</td>
-                  <td style={{ ...cellStyle, display: "flex", gap: "8px" }}>
-                    <button onClick={() => edit(l)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}>
+                  <td style={{ ...cellStyle, display: "flex", gap: "8px"}}>
+                    <button onClick={() => edit(l)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white", width: "75px", height: "25px" }}>
                       {t(lang, "edit")}
                     </button>
-                    <button onClick={() => remove(l.id)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}>
+                    <button onClick={() => remove(l.id)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white", width: "75px", height: "25px"  }}>
                       {t(lang, "delete")}
                     </button>
                   </td>
@@ -121,7 +121,7 @@ export default function Languages({ user, lang }) {
         padding: "20px", 
         boxSizing: "border-box",
         color: "var(--text-main)",
-        marginTop: "50px"
+        marginTop: "40px"
       }}>
         <h2 style={{ margin: "0 0 20px" }}>
           {editingId ? t(lang, "editLanguage") : t(lang, "addLanguage")}

@@ -10,26 +10,30 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // 1. Валидация данных
         $credentials = $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required'],
+            'password' => ['required', 'string', 'min:6'],
         ]);
 
-        // 2. Попытка входа
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->is_blocked) {
+                Auth::logout();
+                return response()->json(['success' => false, 'message' => 'Ваш аккаунт заблокирован.'], 403);
+            }
+
             $request->session()->regenerate();
 
-            // Возвращаем данные пользователя, чтобы React знал, что вход успешен
             return response()->json([
-                'user' => Auth::user(),
+                'success' => true,
+                'user' => $user,
                 'message' => 'Logged in successfully'
             ]);
         }
 
-        // 3. Если пароль неверный - возвращаем ошибку
         throw ValidationException::withMessages([
-            'email' => ['The provided credentials do not match our records.'],
+            'email' => ['Неверный email или пароль.'],
         ]);
     }
 
@@ -39,6 +43,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['success' => true, 'message' => 'Logged out']);
     }
 }

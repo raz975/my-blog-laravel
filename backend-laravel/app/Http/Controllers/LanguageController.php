@@ -9,7 +9,6 @@ class LanguageController extends Controller
 {
     public function index()
     {
-        // Берем все языки из таблицы languages
         $languages = DB::table('languages')->get();
 
         return response()->json([

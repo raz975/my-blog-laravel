@@ -15,7 +15,6 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
-        // React может присылать 'title', а в базе колонка 'name'
         $id = DB::table('menu_items')->insertGetId([
             'name' => $request->title ?? $request->name, 
             'url' => $request->url,

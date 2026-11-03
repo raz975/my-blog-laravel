@@ -12,12 +12,12 @@ export default function CommentItem({ comment, user, postOwnerId, onUpdate, lang
   
   const isAuthor = userId === commentUserId;
   const isAdmin = user?.role === "admin";
+  
+  const isPostOwner = userId === Number(postOwnerId);
 
-  // Редактировать может ТОЛЬКО автор
   const canEdit = isAuthor;
   
-  // Удалять может автор ИЛИ админ
-  const canDelete = isAuthor || isAdmin;
+  const canDelete = isAuthor || isAdmin || isPostOwner;
 
   const handleUpdate = async () => {
     if (!text.trim()) return;

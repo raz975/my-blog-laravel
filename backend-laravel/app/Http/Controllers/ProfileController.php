@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Post;
 
 class ProfileController extends Controller
 {
@@ -18,13 +19,14 @@ class ProfileController extends Controller
         $user->total_likes = DB::table('post_likes')->join('posts', 'post_likes.post_id', '=', 'posts.id')->where('posts.user_id', $id)->count();
         $user->is_subscribed = $currentUserId ? DB::table('subscriptions')->where('follower_id', $currentUserId)->where('following_id', $id)->exists() : false;
 
-        $posts = DB::table('posts')->where('user_id', $id)->orderBy('id', 'desc')->get();
-        foreach ($posts as $post) {
-            $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
+        $posts = Post::with(['user', 'image'])->withCount('likes')->where('user_id', $id)->orderBy('id', 'desc')->get();
+        $posts->each(function ($post) use ($currentUserId) {
+            $post->author = $post->user ? $post->user->name : 'Unknown';
+            $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
+            $post->likes = $post->likes_count;
             $post->liked_by_me = $currentUserId ? DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $currentUserId)->exists() : false;
-            $img = DB::table('post_images')->where('post_id', $post->id)->first();
-            $post->image_url = $img ? '/uploads/' . $img->file_name : null;
-        }
+            unset($post->user, $post->image, $post->likes_count);
+        });
         $user->posts = $posts;
 
         return response()->json(['success' => true, 'data' => $user]);
@@ -39,14 +41,16 @@ class ProfileController extends Controller
         $user->total_likes = DB::table('post_likes')->join('posts', 'post_likes.post_id', '=', 'posts.id')->where('posts.user_id', $id)->count();
         $user->is_subscribed = false;
         
-        $posts = DB::table('posts')->where('user_id', $id)->orderBy('id', 'desc')->get();
-        foreach ($posts as $post) {
-            $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
+        $posts = Post::with(['user', 'image'])->withCount('likes')->where('user_id', $id)->orderBy('id', 'desc')->get();
+        $posts->each(function ($post) use ($id) {
+            $post->author = $post->user ? $post->user->name : 'Unknown';
+            $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
+            $post->likes = $post->likes_count;
             $post->liked_by_me = DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $id)->exists();
-            $img = DB::table('post_images')->where('post_id', $post->id)->first();
-            $post->image_url = $img ? '/uploads/' . $img->file_name : null;
-        }
+            unset($post->user, $post->image, $post->likes_count);
+        });
         $user->posts = $posts;
+
         return response()->json(['success' => true, 'data' => $user]); 
     }
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 axios.defaults.headers.common['Accept'] = 'application/json';
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+// Убрали глобальный Content-Type, чтобы Axios сам ставил его для FormData
 
 async function getCsrfCookie() {
     await axios.get('/sanctum/csrf-cookie');
@@ -14,7 +14,6 @@ async function request(url, options = {}) {
         const response = await axios({
             url: `/api${url}`,
             method: options.method || 'GET',
-            // Если данные переданы в body, отдаем их как объект (axios сам сделает JSON)
             data: options.body || undefined,
             ...options
         });
@@ -22,7 +21,6 @@ async function request(url, options = {}) {
         if (response.data && response.data.success === false) {
             throw new Error(response.data.error || response.data.message || 'Operation failed');
         }
-
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -30,7 +28,6 @@ async function request(url, options = {}) {
                 window.dispatchEvent(new CustomEvent('unauthorized'));
                 throw new Error('Session expired. Please login again.');
             }
-            
             const errorData = error.response.data;
             const message = errorData.message || errorData.error || `HTTP ${error.response.status}`;
             throw new Error(message);
@@ -89,13 +86,22 @@ export const api = {
     setActiveLanguage(id) { return request(`/admin/languages/${id}/set-active`, { method: 'PUT' }); },
 
     getPostImage(postId) { return request(`/images/${postId}`); },
+
+    // ИСПРАВЛЕННЫЙ МЕТОД ЗАГРУЗКИ
     uploadImage(postId, file) {
         const formData = new FormData();
         formData.append('post_id', postId);
         formData.append('image', file);
-        return axios.post('/api/images/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        }).then(res => res.data);
+
+        return axios.post('/api/images/upload', formData)
+            .then(res => res.data)
+            .catch(error => {
+                // Если Laravel прислал текст ошибки, выводим его
+                if (error.response && error.response.data && error.response.data.message) {
+                    throw new Error(error.response.data.message);
+                }
+                throw error; // Если нет, выводим стандартную
+            });
     },
     deleteImage(postId) { return request(`/images/${postId}`, { method: 'DELETE' }); },
 

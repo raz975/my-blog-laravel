@@ -113,7 +113,7 @@ export default function Profile({ user: currentUser, lang }) {
             <span><strong>{profile.posts?.length || 0}</strong> {t(lang, "posts") || "постов"}</span>
             <span><strong>{profile.followers}</strong> {t(lang, "followers") || "подписчиков"}</span>
             <span><strong>{profile.following}</strong> {t(lang, "following") || "подписок"}</span>
-            <span>❤️ <strong>{profile.total_likes}</strong> {t(lang, "likesReceived") || "лайков"}</span>
+            <span><strong>{profile.total_likes}</strong> {t(lang, "likesReceived") || "лайков"}</span>
           </div>
         </div>
 
@@ -139,7 +139,7 @@ export default function Profile({ user: currentUser, lang }) {
               <img src={"http://127.0.0.1:8000" + post.image_url} alt="" style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} />
             )}
             <h3 style={{ margin: "0 0 5px", fontSize: "16px" }}>{post.title}</h3>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "10px" }}>❤️ {post.likes} {t(lang, "likes") || "лайков"}</p>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "10px" }}> {post.likes} {t(lang, "likes") || "лайков"}</p>
             <Link to={`/posts/${post.id}`} style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "5px 10px", borderRadius: "6px", fontSize: "12px", display: "inline-block" }}>
               {t(lang, "readMore") || "Подробнее"}
             </Link>

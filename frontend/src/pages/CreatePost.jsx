@@ -22,6 +22,7 @@ export default function CreatePost({ lang }) {
     setError("");
 
     try {
+      // 1. Создаем пост
       const response = await api.createPost({ title, content });
       
       if (response.success === false) {
@@ -30,8 +31,14 @@ export default function CreatePost({ lang }) {
 
       const newPostId = response.data.id;
 
+      // 2. Загружаем картинку (если выбрана)
       if (image) {
-        await api.uploadImage(newPostId, image);
+        try {
+          await api.uploadImage(newPostId, image);
+        } catch (imgError) {
+          // ВЫВОДИМ ТОЧНУЮ ОШИБКУ В ALERT
+          alert("Пост создан, но картинка не загрузилась!\n\nОшибка сервера: " + imgError.message);
+        }
       }
 
       navigate("/");

@@ -10,47 +10,32 @@ function PostMiniCard({ post, lang, user, onOpenComments }) {
   const [loading, setLoading] = useState(false);
 
   const toggleLike = async e => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (!user || loading) return;
     setLoading(true);
     try {
       const res = await api.likePost(post.id);
-      setLikes(res.likes);
-      setLikedByMe(res.liked);
+      setLikes(res.likes); setLikedByMe(res.liked);
     } catch (err) { console.warn(err.message); }
     finally { setLoading(false); }
   };
 
-  const openComments = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    onOpenComments(post);
-  };
-
+  const openComments = e => { e.preventDefault(); e.stopPropagation(); onOpenComments(post); };
   const hasContent = post.content && post.content.trim().length > 1 && post.content.trim() !== ".";
 
   return (
     <Link to={`/posts/${post.id}`} style={{ background: "var(--bg-card)", borderRadius: "14px", padding: "15px", boxShadow: "var(--shadow-small)", width: "220px", boxSizing: "border-box", textDecoration: "none", color: "var(--text-main)", display: "flex", flexDirection: "column", height: "260px" }}>
       <div style={{ flexShrink: 0, marginBottom: "10px" }}>
         {post.image_url ? (
-          <img src={"http://127.0.0.1:8000" + post.image_url} alt={post.title} style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }} onError={e => { e.target.style.display = "none"; }} />
+          <img src={post.image_url} alt={post.title} style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }} onError={e => { e.target.style.display = "none"; }} />
         ) : (
-          <div style={{ width: "100%", height: "100px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>
-            {t(lang, "noImage") || "нет картинки"}
-          </div>
+          <div style={{ width: "100%", height: "100px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "12px" }}>{t(lang, "noImage")}</div>
         )}
       </div>
-
       <div style={{ flex: 1, overflow: "hidden" }}>
         <h3 style={{ margin: "0 0 5px", fontSize: "16px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h3>
-        {hasContent && (
-          <p style={{ margin: "0", fontSize: "12px", color: "var(--text-secondary)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-            {post.content}
-          </p>
-        )}
+        {hasContent && <p style={{ margin: "0", fontSize: "12px", color: "var(--text-secondary)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{post.content}</p>}
       </div>
-
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "auto" }}>
         <button onClick={toggleLike} disabled={loading || !user} style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "14px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}>
           {likedByMe ? "❤️" : "🤍"} {likes}
@@ -71,13 +56,8 @@ export default function UserProfile({ user, lang }) {
 
   const load = () => {
     setLoading(true);
-    api.getUserProfile(id)
-      .then(response => {
-        const data = response.data || response;
-        setProfile(data);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    api.getUserProfile(id).then(response => { const data = response.data || response; setProfile(data); })
+      .catch(e => setError(e.message)).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [id]);
@@ -86,17 +66,13 @@ export default function UserProfile({ user, lang }) {
     if (!user || subLoading) return;
     setSubLoading(true);
     try {
-      if (profile.is_subscribed) await api.unsubscribe(profile.id);
-      else await api.subscribe(profile.id);
+      if (profile.is_subscribed) await api.unsubscribe(profile.id); else await api.subscribe(profile.id);
       load();
-    } catch (e) {
-      alert(e.message);
-    } finally {
-      setSubLoading(false);
-    }
+    } catch (e) { alert(e.message); }
+    finally { setSubLoading(false); }
   };
 
-  if (loading) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)", textAlign: "center", marginTop: "40px" }}>{t(lang, "loading") || "Загрузка..."}</p>;
+  if (loading) return <p style={{ fontFamily: "Franklin Gothic Medium", color: "var(--text-main)", textAlign: "center", marginTop: "40px" }}>{t(lang, "loading")}</p>;
   if (error) return <p style={{ color: "var(--danger)", textAlign: "center", marginTop: "40px" }}>{error}</p>;
   if (!profile) return null;
 
@@ -114,30 +90,26 @@ export default function UserProfile({ user, lang }) {
             <p style={{ margin: "8px 0", color: "var(--text-secondary)", fontSize: "14px" }}>{profile.email}</p>
             {!isMe && user && (
               <button onClick={toggleSubscribe} disabled={subLoading} style={{ marginTop: "10px", border: profile.is_subscribed ? "1px solid var(--border-color)" : "none", borderRadius: "20px", padding: "8px 24px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", fontSize: "14px", background: profile.is_subscribed ? "transparent" : "var(--accent)", color: profile.is_subscribed ? "var(--text-main)" : "white", fontWeight: "bold" }}>
-                {profile.is_subscribed ? (t(lang, "unsubscribe") || "Отписаться") : (t(lang, "subscribe") || "Подписаться")}
+                {profile.is_subscribed ? t(lang, "unsubscribe") : t(lang, "subscribe")}
               </button>
             )}
           </div>
           <div style={{ display: "flex", gap: "25px", flexWrap: "wrap" }}>
-            <Stat label={t(lang, "posts") || "Постов"} value={profile.posts?.length || 0} />
-            <Stat label={t(lang, "followers") || "Подписчиков"} value={profile.followers || 0} />
-            <Stat label={t(lang, "following") || "Подписок"} value={profile.following || 0} />
-            <Stat label={t(lang, "likesReceived") || "Лайков"} value={"❤️ " + (profile.total_likes || 0)} />
+            <Stat label={t(lang, "posts")} value={profile.posts?.length || 0} />
+            <Stat label={t(lang, "followers")} value={profile.followers || 0} />
+            <Stat label={t(lang, "following")} value={profile.following || 0} />
+            <Stat label={t(lang, "likesReceived")} value={(profile.total_likes || 0)} />
           </div>
         </div>
-
-        <h2 style={{ margin: "0 0 20px" }}>{t(lang, "posts") || "Посты"}</h2>
+        <h2 style={{ margin: "0 0 20px" }}>{t(lang, "posts")}</h2>
         {profile.posts?.length ? (
           <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-            {profile.posts.map(post => (
-              <PostMiniCard key={post.id} post={post} lang={lang} user={user} onOpenComments={setOpenComments} />
-            ))}
+            {profile.posts.map(post => <PostMiniCard key={post.id} post={post} lang={lang} user={user} onOpenComments={setOpenComments} />)}
           </div>
         ) : (
-          <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts") || "У пользователя пока нет постов."}</p>
+          <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts")}</p>
         )}
       </div>
-
       {openComments && <CommentsModal post={openComments} user={user} lang={lang} onClose={() => setOpenComments(null)} />}
     </>
   );

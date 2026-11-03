@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Post;
 use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
@@ -12,26 +13,28 @@ class PostController extends Controller
         $userId = auth('sanctum')->id() ?? 0;
         $search = $request->query('search');
         
-        $query = DB::table('posts');
+        $query = Post::with(['user', 'image'])
+            ->withCount('likes')
+            ->withExists(['likes as liked_by_me' => function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            }]);
+
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
         }
 
-        try {
-            $posts = $query->orderBy('created_at', 'desc')->get();
-        } catch (\Exception $e) {
-            $posts = $query->orderBy('id', 'desc')->get();
-        }
+        $posts = $query->orderBy('id', 'desc')->get();
 
-        foreach ($posts as $post) {
-            $post->likes = DB::table('post_likes')->where('post_id', $post->id)->count();
-            $post->liked_by_me = $userId ? DB::table('post_likes')->where('post_id', $post->id)->where('user_id', $userId)->exists() : false;
-            $img = DB::table('post_images')->where('post_id', $post->id)->first();
-            $post->image_url = $img ? '/uploads/' . $img->file_name : null;
+        $posts->each(function ($post) {
+            $post->author = $post->user ? $post->user->name : 'Unknown';
+            $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
             
-            $author = DB::table('users')->find($post->user_id);
-            $post->author = $author ? $author->name : 'Unknown';
-        }
+            // Исправление: переносим likes_count в likes
+            $post->likes = $post->likes_count;
+            $post->liked_by_me = (bool) $post->liked_by_me;
+            
+            unset($post->user, $post->image, $post->likes_count);
+        });
 
         return response()->json(['success' => true, 'data' => $posts]);
     }
@@ -39,13 +42,22 @@ class PostController extends Controller
     public function show($id)
     {
         $userId = auth('sanctum')->id() ?? 0;
-        $post = DB::table('posts')->find($id);
+        $post = Post::with(['user', 'image'])
+            ->withCount('likes')
+            ->withExists(['likes as liked_by_me' => function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            }])->find($id);
+
         if (!$post) return response()->json(['success' => false, 'message' => 'Post not found'], 404);
 
-        $post->likes = DB::table('post_likes')->where('post_id', $id)->count();
-        $post->liked_by_me = $userId ? DB::table('post_likes')->where('post_id', $id)->where('user_id', $userId)->exists() : false;
-        $img = DB::table('post_images')->where('post_id', $id)->first();
-        $post->image_url = $img ? '/uploads/' . $img->file_name : null;
+        $post->author = $post->user ? $post->user->name : 'Unknown';
+        $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
+        
+        // Исправление: переносим likes_count в likes
+        $post->likes = $post->likes_count;
+        $post->liked_by_me = (bool) $post->liked_by_me;
+        
+        unset($post->user, $post->image, $post->likes_count);
 
         return response()->json(['success' => true, 'data' => $post]);
     }
@@ -53,35 +65,33 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $request->validate(['title' => 'required|string|max:255', 'content' => 'required|string|max:5000']);
-        try {
-            $id = DB::table('posts')->insertGetId([
-                'title' => $request->title, 'content' => $request->content, 'user_id' => auth()->id(), 'created_at' => now() 
-            ]);
-            return response()->json(['success' => true, 'data' => DB::table('posts')->find($id)]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
+        $post = Post::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'user_id' => auth()->id()
+        ]);
+        return response()->json(['success' => true, 'data' => $post]);
     }
 
     public function update(Request $request, $id)
     {
-        $post = DB::table('posts')->find($id);
+        $post = Post::find($id);
         if (!$post) return response()->json(['success' => false, 'message' => 'Пост не найден'], 404);
         if ($post->user_id !== auth()->id()) return response()->json(['success' => false, 'message' => 'Чужой пост'], 403);
         
         $request->validate(['title' => 'required|string|max:255', 'content' => 'required|string|max:5000']);
-        DB::table('posts')->where('id', $id)->update(['title' => $request->title, 'content' => $request->content]);
+        $post->update(['title' => $request->title, 'content' => $request->content]);
         return response()->json(['success' => true]);
     }
 
     public function destroy($id)
     {
-        $post = DB::table('posts')->find($id);
+        $post = Post::find($id);
         if (!$post) return response()->json(['success' => false, 'message' => 'Пост не найден'], 404);
         if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
             return response()->json(['success' => false, 'message' => 'Нет прав на удаление'], 403);
         }
-        DB::table('posts')->where('id', $id)->delete();
+        $post->delete();
         return response()->json(['success' => true]);
     }
 
@@ -107,7 +117,7 @@ class PostController extends Controller
                 'post_id' => 'required|integer|exists:posts,id'
             ]);
 
-            $post = DB::table('posts')->find($request->post_id);
+            $post = Post::find($request->post_id);
             if ($post->user_id !== auth()->id()) {
                 return response()->json(['success' => false, 'message' => 'Вы не можете загружать картинки к чужому посту'], 403);
             }

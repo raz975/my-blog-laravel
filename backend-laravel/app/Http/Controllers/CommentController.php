@@ -45,9 +45,17 @@ class CommentController extends Controller
     {
         $comment = DB::table('comments')->find($id);
         if (!$comment) return response()->json(['success' => false, 'message' => 'Комментарий не найден'], 404);
-        if ($comment->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+        
+        $post = DB::table('posts')->find($comment->post_id);
+        
+        $isCommentAuthor = $comment->user_id === auth()->id();
+        $isAdmin = auth()->user()->role === 'admin';
+        $isPostOwner = $post && $post->user_id === auth()->id();
+
+        if (!$isCommentAuthor && !$isAdmin && !$isPostOwner) {
             return response()->json(['success' => false, 'message' => 'Нет прав на удаление'], 403);
         }
+        
         DB::table('comments')->where('id', $id)->delete();
         return response()->json(['success' => true]);
     }

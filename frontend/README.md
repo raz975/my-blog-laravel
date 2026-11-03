@@ -1,16 +1,27 @@
-# React + Vite
+# Blog Platform — React + Laravel + MySQL
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Фуллстек-приложение для ведения блога с авторизацией, админ-панелью и мультиязычностью.
 
-Currently, two official plugins are available:
+## 📋 Стек технологий
+- **Backend:** Laravel 10, Laravel Sanctum, MySQL
+- **Frontend:** React 18 (Vite), React Router, Axios
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Функционал
+- Авторизация (регистрация, вход, выход, смена пароля)
+- Посты (создание, редактирование, удаление, загрузка картинок)
+- Лайки и комментарии
+- Профили пользователей с подписками
+- Админ-панель (управление пользователями, языками, меню)
+- Мультиязычность (RU / EN / HY)
+- Светлая и тёмная темы
 
-## React Compiler
+## 🚀 Запуск проекта
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+```bash
+cd backend-laravel
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve

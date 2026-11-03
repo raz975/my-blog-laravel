@@ -17,7 +17,6 @@ export default function MenuManager({ user, lang }) {
 
   const isAdmin = user?.role === "admin";
 
-  // ФУНКЦИЯ ЗАГРУЗКИ (только читает)
   const loadData = () => {
     api.getMenu(lang).then(res => {
       const flat = res.data || [];
@@ -42,9 +41,7 @@ export default function MenuManager({ user, lang }) {
     loadData();
   }, [lang]);
 
-  // ФУНКЦИЯ СОХРАНЕНИЯ НОВОГО ПОРЯДКА (вызывается при перетаскивании)
   const handleReorder = (newTopItems) => {
-    // Превращаем дерево обратно в плоский список
     const allOrdered = [];
     const collect = (list, currentParentId = null) => {
       list.forEach((item, index) => {
@@ -60,12 +57,11 @@ export default function MenuManager({ user, lang }) {
     };
     collect(newTopItems);
 
-    // Отправляем в Laravel
     api.reorderMenu(allOrdered)
-      .then(() => loadData()) // После сохранения перезагружаем (чтобы убедиться)
+      .then(() => loadData()) 
       .catch(err => {
         setErr(err.message);
-        loadData(); // Если ошибка - откатываем визуально
+        loadData(); 
       });
   };
 
@@ -123,7 +119,6 @@ export default function MenuManager({ user, lang }) {
         {isAdmin && <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "10px" }}>{t(lang, "dragToReorder")}</p>}
         
         {menu.length ? (
-          // ВАЖНО: здесь передаем handleReorder, а не loadData
           <MenuTree items={menu} setItems={handleReorder} onEdit={edit} onDelete={remove} isAdmin={isAdmin} lang={lang} />
         ) : (
           !err && <p style={{ fontSize: "14px" }}>{t(lang, "noMenuItems")}</p>

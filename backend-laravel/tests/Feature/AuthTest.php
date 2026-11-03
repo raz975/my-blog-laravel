@@ -17,7 +17,10 @@ class AuthTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders([
+            'Referer' => 'http://localhost:5173',
+            'Origin' => 'http://localhost:5173',
+        ])->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -34,7 +37,10 @@ class AuthTest extends TestCase
             'is_blocked' => 1,
         ]);
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->withHeaders([
+            'Referer' => 'http://localhost:5173',
+            'Origin' => 'http://localhost:5173',
+        ])->postJson('/api/auth/login', [
             'email' => 'blocked@example.com',
             'password' => 'password123',
         ]);

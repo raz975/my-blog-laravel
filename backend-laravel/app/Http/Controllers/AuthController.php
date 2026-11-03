@@ -23,7 +23,10 @@ class AuthController extends Controller
                 return response()->json(['success' => false, 'message' => 'Ваш аккаунт заблокирован.'], 403);
             }
 
-            $request->session()->regenerate();
+            // В тестах сессии может не быть
+            if ($request->hasSession()) {
+                $request->session()->regenerate();
+            }
 
             return response()->json([
                 'success' => true,
@@ -40,8 +43,11 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['success' => true, 'message' => 'Logged out']);
     }

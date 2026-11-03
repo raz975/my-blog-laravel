@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Comment;
 
 class CommentController extends Controller
 {
@@ -32,31 +33,24 @@ class CommentController extends Controller
 
     public function update(Request $request, $id)
     {
-        $comment = DB::table('comments')->find($id);
+        $comment = Comment::find($id);
         if (!$comment) return response()->json(['success' => false, 'message' => 'Комментарий не найден'], 404);
-        if ($comment->user_id !== auth()->id()) return response()->json(['success' => false, 'message' => 'Чужой коммент'], 403);
+        
+        $this->authorize('update', $comment);
         
         $request->validate(['content' => 'required|string|max:1000']);
-        DB::table('comments')->where('id', $id)->update(['content' => $request->input('content')]);
+        $comment->update(['content' => $request->input('content')]);
         return response()->json(['success' => true]);
     }
 
     public function destroy($id)
     {
-        $comment = DB::table('comments')->find($id);
+        $comment = Comment::find($id);
         if (!$comment) return response()->json(['success' => false, 'message' => 'Комментарий не найден'], 404);
         
-        $post = DB::table('posts')->find($comment->post_id);
+        $this->authorize('delete', $comment);
         
-        $isCommentAuthor = $comment->user_id === auth()->id();
-        $isAdmin = auth()->user()->role === 'admin';
-        $isPostOwner = $post && $post->user_id === auth()->id();
-
-        if (!$isCommentAuthor && !$isAdmin && !$isPostOwner) {
-            return response()->json(['success' => false, 'message' => 'Нет прав на удаление'], 403);
-        }
-        
-        DB::table('comments')->where('id', $id)->delete();
+        $comment->delete();
         return response()->json(['success' => true]);
     }
 }

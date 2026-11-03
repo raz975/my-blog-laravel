@@ -140,3 +140,45 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+.navbar {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-nav);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-family: "Franklin Gothic Medium";
+  transition: background 0.3s;
+}
+
+.nav-link {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.nav-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 9px;
+  font-family: "Franklin Gothic Medium";
+  background: var(--bg-input);
+  color: var(--text-main);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.nav-btn-logout {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: "Franklin Gothic Medium";
+  background: var(--danger);
+  color: white;
+  font-size: 14px;
+}

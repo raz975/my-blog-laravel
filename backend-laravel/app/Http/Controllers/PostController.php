@@ -28,11 +28,8 @@ class PostController extends Controller
         $posts->each(function ($post) {
             $post->author = $post->user ? $post->user->name : 'Unknown';
             $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
-            
-            // Исправление: переносим likes_count в likes
             $post->likes = $post->likes_count;
             $post->liked_by_me = (bool) $post->liked_by_me;
-            
             unset($post->user, $post->image, $post->likes_count);
         });
 
@@ -52,11 +49,8 @@ class PostController extends Controller
 
         $post->author = $post->user ? $post->user->name : 'Unknown';
         $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
-        
-        // Исправление: переносим likes_count в likes
         $post->likes = $post->likes_count;
         $post->liked_by_me = (bool) $post->liked_by_me;
-        
         unset($post->user, $post->image, $post->likes_count);
 
         return response()->json(['success' => true, 'data' => $post]);
@@ -77,7 +71,8 @@ class PostController extends Controller
     {
         $post = Post::find($id);
         if (!$post) return response()->json(['success' => false, 'message' => 'Пост не найден'], 404);
-        if ($post->user_id !== auth()->id()) return response()->json(['success' => false, 'message' => 'Чужой пост'], 403);
+        
+        $this->authorize('update', $post);
         
         $request->validate(['title' => 'required|string|max:255', 'content' => 'required|string|max:5000']);
         $post->update(['title' => $request->title, 'content' => $request->content]);
@@ -88,9 +83,9 @@ class PostController extends Controller
     {
         $post = Post::find($id);
         if (!$post) return response()->json(['success' => false, 'message' => 'Пост не найден'], 404);
-        if ($post->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Нет прав на удаление'], 403);
-        }
+        
+        $this->authorize('delete', $post);
+        
         $post->delete();
         return response()->json(['success' => true]);
     }

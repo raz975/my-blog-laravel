@@ -7,33 +7,19 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
   const isAdmin = user?.role === "admin";
   const navigate = useNavigate();
 
-  const linkStyle = { color: "var(--text-main)", textDecoration: "none", fontWeight: "normal", fontSize: "14px" };
-
-  const selectStyle = {
-    padding: "8px 12px",
-    border: "1px solid var(--border-input)",
-    borderRadius: "9px",
-    fontFamily: "Franklin Gothic Medium",
-    background: "var(--bg-input)",
-    color: "var(--text-main)",
-    fontSize: "13px",
-    cursor: "pointer",
-    outline: "none"
-  };
-
   return (
-    <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
-      
+    <nav className="navbar">
       {user && (
         <>
           {isAdmin && (
             <select
+              aria-label="Admin panel navigation"
               value=""
               onChange={e => {
                 if (e.target.value) navigate(e.target.value);
                 e.target.value = "";
               }}
-              style={selectStyle}
+              className="nav-select"
             >
               <option value="" disabled>{t(lang, "adminPanel")}</option>
               <option value="/admin/users">{t(lang, "users")}</option>
@@ -41,17 +27,17 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
             </select>
           )}
 
-          <Link to="/" style={linkStyle}>{t(lang, "posts")}</Link>
-          <Link to="/menu" style={linkStyle}>{t(lang, "manageMenu")}</Link>
-          <Link to="/create" style={linkStyle}>{t(lang, "createPost")}</Link>
-          <Link to="/profile" style={linkStyle}>{t(lang, "profile")}</Link>
+          <Link to="/" className="nav-link">{t(lang, "posts")}</Link>
+          <Link to="/menu" className="nav-link">{t(lang, "manageMenu")}</Link>
+          <Link to="/create" className="nav-link">{t(lang, "createPost")}</Link>
+          <Link to="/profile" className="nav-link">{t(lang, "profile")}</Link>
         </>
       )}
 
       {!user && (
         <>
-          <Link to="/login" style={linkStyle}>{t(lang, "login")}</Link>
-          <Link to="/register" style={linkStyle}>{t(lang, "registration")}</Link>
+          <Link to="/login" className="nav-link">{t(lang, "login")}</Link>
+          <Link to="/register" className="nav-link">{t(lang, "registration")}</Link>
         </>
       )}
 
@@ -62,7 +48,8 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
         {user && (
           <button 
             onClick={onLogout} 
-            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}
+            className="nav-btn-logout"
+            aria-label="Logout from account"
           >
             {t(lang, "logout")}
           </button>

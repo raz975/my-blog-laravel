@@ -46,12 +46,23 @@ function PostCard({ post, lang, user, onOpenComments }) {
 export default function Posts({ user, lang }) {
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [error, setError] = useState("");
   const [openComments, setOpenComments] = useState(null);
 
   useEffect(() => {
-    api.getPosts(lang, search).then(response => setPosts(response.data || [])).catch(e => setError(e.message));
-  }, [lang, search]);
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
+    api.getPosts(lang, debouncedSearch)
+      .then(response => setPosts(response.data || []))
+      .catch(e => setError(e.message));
+  }, [lang, debouncedSearch]);
 
   const inputStyle = { padding: "8px 12px", borderRadius: "9px", border: "1px solid var(--border-input)", fontFamily: "Franklin Gothic Medium", width: "250px", fontSize: "14px", outline: "none", background: "var(--bg-input)", color: "var(--text-main)" };
 

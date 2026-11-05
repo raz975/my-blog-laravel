@@ -9,7 +9,7 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
+        if (!$request->user() || !in_array($request->user()->role, ['admin', 'superadmin'])) {
             return response()->json(['success' => false, 'message' => 'Доступ запрещен. Требуются права администратора.'], 403);
         }
 

@@ -43,6 +43,7 @@ export default function AdminUsers({ user, lang }) {
     } catch (e) { alert(e.message); }
   };
 
+  const isSuperAdmin = user?.role === "superadmin";
   const cellStyle = { padding: "10px", border: "1px solid var(--border-color)" };
 
   return (
@@ -68,11 +69,7 @@ export default function AdminUsers({ user, lang }) {
                 <tr
                   key={u.id}
                   style={{
-                    background: isMe
-                      ? "var(--bg-me)"
-                      : u.is_blocked === 1
-                        ? "var(--bg-blocked)"
-                        : "var(--bg-row)",
+                    background: isMe ? "var(--bg-me)" : u.is_blocked === 1 ? "var(--bg-blocked)" : "var(--bg-row)",
                     fontWeight: isMe ? "bold" : "normal",
                     color: "var(--text-main)"
                   }}
@@ -83,7 +80,7 @@ export default function AdminUsers({ user, lang }) {
                   </td>
                   <td style={cellStyle}>{u.email}</td>
                   <td style={cellStyle}>
-                    {u.role === "admin" ? t(lang, "roleAdmin") : t(lang, "roleUser")}
+                    {u.role === "superadmin" ? "Super Admin" : u.role === "admin" ? t(lang, "roleAdmin") : t(lang, "roleUser")}
                     {u.is_blocked === 1 && <span style={{ color: "var(--danger)", marginLeft: "8px" }}>● {t(lang, "blocked")}</span>}
                   </td>
                   <td style={{ ...cellStyle, display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -91,27 +88,32 @@ export default function AdminUsers({ user, lang }) {
                       <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>— {t(lang, "you")} —</span>
                     ) : (
                       <>
-                        <button
-                          onClick={() => changeRole(u)}
-                          style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
-                        >
-                          {u.role === "admin" ? "→ User" : "→ Admin"}
-                        </button>
+                        {isSuperAdmin && u.role !== "superadmin" && (
+                          <button
+                            onClick={() => changeRole(u)}
+                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
+                          >
+                            {u.role === "admin" ? "→ User" : "→ Admin"}
+                          </button>
+                        )}
+                        
+                        {u.role !== "superadmin" && (
+                          <button
+                            onClick={() => deleteUser(u)}
+                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
+                          >
+                            {t(lang, "delete")}
+                          </button>
+                        )}
 
-                        <button
-                          onClick={() => deleteUser(u)}
-                          style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
-                        >
-                          {t(lang, "delete")}
-                        </button>
-
-                        <button
-                          onClick={() => toggleBlock(u)}
-                          style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
-                        >
-                          {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
-                        </button>
-
+                        {u.role !== "superadmin" && (
+                          <button
+                            onClick={() => toggleBlock(u)}
+                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
+                          >
+                            {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
+                          </button>
+                        )}
                       </>
                     )}
                   </td>

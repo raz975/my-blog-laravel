@@ -4,22 +4,25 @@ import ThemeToggle from "./ThemeToggle.jsx";
 import { t } from "../translations.js";
 
 export default function Navbar({ user, onLogout, lang, setLang, theme, toggleTheme }) {
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
   const navigate = useNavigate();
 
+  const linkStyle = { color: "var(--text-main)", textDecoration: "none", fontWeight: "normal", fontSize: "14px" };
+  const selectStyle = { padding: "8px 12px", border: "1px solid var(--border-input)", borderRadius: "9px", fontFamily: "Franklin Gothic Medium", background: "var(--bg-input)", color: "var(--text-main)", fontSize: "13px", cursor: "pointer", outline: "none" };
+
   return (
-    <nav className="navbar">
+    <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
+      
       {user && (
         <>
           {isAdmin && (
             <select
-              aria-label="Admin panel navigation"
               value=""
               onChange={e => {
                 if (e.target.value) navigate(e.target.value);
                 e.target.value = "";
               }}
-              className="nav-select"
+              style={selectStyle}
             >
               <option value="" disabled>{t(lang, "adminPanel")}</option>
               <option value="/admin/users">{t(lang, "users")}</option>
@@ -27,30 +30,25 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
             </select>
           )}
 
-          <Link to="/" className="nav-link">{t(lang, "posts")}</Link>
-          <Link to="/menu" className="nav-link">{t(lang, "manageMenu")}</Link>
-          <Link to="/create" className="nav-link">{t(lang, "createPost")}</Link>
-          <Link to="/profile" className="nav-link">{t(lang, "profile")}</Link>
+          <Link to="/" style={linkStyle}>{t(lang, "posts")}</Link>
+          <Link to="/menu" style={linkStyle}>{t(lang, "manageMenu")}</Link>
+          <Link to="/create" style={linkStyle}>{t(lang, "createPost")}</Link>
+          <Link to="/profile" style={linkStyle}>{t(lang, "profile")}</Link>
         </>
       )}
 
       {!user && (
         <>
-          <Link to="/login" className="nav-link">{t(lang, "login")}</Link>
-          <Link to="/register" className="nav-link">{t(lang, "registration")}</Link>
+          <Link to="/login" style={linkStyle}>{t(lang, "login")}</Link>
+          <Link to="/register" style={linkStyle}>{t(lang, "registration")}</Link>
         </>
       )}
 
       <div style={{ marginLeft: "auto", display: "flex", gap: "10px", alignItems: "center" }}>
         <ThemeToggle lang={lang} theme={theme} toggleTheme={toggleTheme} />
         <LanguageSelector lang={lang} setLang={setLang} />
-        
         {user && (
-          <button 
-            onClick={onLogout} 
-            className="nav-btn-logout"
-            aria-label="Logout from account"
-          >
+          <button onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>
             {t(lang, "logout")}
           </button>
         )}

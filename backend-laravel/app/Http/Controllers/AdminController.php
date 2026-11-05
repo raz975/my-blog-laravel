@@ -34,7 +34,13 @@ class AdminController extends Controller
 
     public function users()
     {
-        return response()->json(['success' => true, 'data' => DB::table('users')->get()]);
+        $query = DB::table('users');
+
+        if (auth()->user()->role !== 'superadmin') {
+            $query->where('role', '!=', 'superadmin');
+        }
+
+        return response()->json(['success' => true, 'data' => $query->get()]);
     }
 
     public function blockUser(Request $request, $id)

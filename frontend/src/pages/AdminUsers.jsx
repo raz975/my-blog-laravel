@@ -8,7 +8,15 @@ export default function AdminUsers({ user, lang }) {
 
   const load = () => {
     api.getUsers()
-      .then(response => setUsers(response.data || []))
+      .then(response => {
+        let data = response.data || [];
+        data.sort((a, b) => {
+          if (a.id === user.id) return -1;
+          if (b.id === user.id) return 1;
+          return a.id - b.id;
+        });
+        setUsers(data);
+      })
       .catch(e => setError(e.message));
   };
 
@@ -98,21 +106,20 @@ export default function AdminUsers({ user, lang }) {
                         )}
                         
                         {u.role !== "superadmin" && (
-                          <button
-                            onClick={() => deleteUser(u)}
-                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
-                          >
-                            {t(lang, "delete")}
-                          </button>
-                        )}
-
-                        {u.role !== "superadmin" && (
-                          <button
-                            onClick={() => toggleBlock(u)}
-                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
-                          >
-                            {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
-                          </button>
+                          <>
+                            <button
+                              onClick={() => deleteUser(u)}
+                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
+                            >
+                              {t(lang, "delete")}
+                            </button>
+                            <button
+                              onClick={() => toggleBlock(u)}
+                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
+                            >
+                              {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
+                            </button>
+                          </>
                         )}
                       </>
                     )}

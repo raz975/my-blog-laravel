@@ -3,7 +3,6 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 axios.defaults.headers.common['Accept'] = 'application/json';
-// Убрали глобальный Content-Type, чтобы Axios сам ставил его для FormData
 
 async function getCsrfCookie() {
     await axios.get('/sanctum/csrf-cookie');
@@ -28,11 +27,16 @@ async function request(url, options = {}) {
                 window.dispatchEvent(new CustomEvent('unauthorized'));
                 throw new Error('Session expired. Please login again.');
             }
+            
+            if (error.response.status >= 500) {
+                throw new Error('Ошибка на сервере. Пожалуйста, попробуйте позже.');
+            }
+
             const errorData = error.response.data;
             const message = errorData.message || errorData.error || `HTTP ${error.response.status}`;
             throw new Error(message);
         } else if (error.request) {
-            throw new Error('Network error. Please check if Laravel server is running.');
+            throw new Error('Ошибка сети. Проверьте, запущен ли сервер Laravel.');
         } else {
             throw new Error(error.message);
         }
@@ -86,21 +90,17 @@ export const api = {
     setActiveLanguage(id) { return request(`/admin/languages/${id}/set-active`, { method: 'PUT' }); },
 
     getPostImage(postId) { return request(`/images/${postId}`); },
-
-    // ИСПРАВЛЕННЫЙ МЕТОД ЗАГРУЗКИ
     uploadImage(postId, file) {
         const formData = new FormData();
         formData.append('post_id', postId);
         formData.append('image', file);
-
         return axios.post('/api/images/upload', formData)
             .then(res => res.data)
             .catch(error => {
-                // Если Laravel прислал текст ошибки, выводим его
                 if (error.response && error.response.data && error.response.data.message) {
                     throw new Error(error.response.data.message);
                 }
-                throw error; // Если нет, выводим стандартную
+                throw error; 
             });
     },
     deleteImage(postId) { return request(`/images/${postId}`, { method: 'DELETE' }); },

@@ -10,11 +10,21 @@ export default function AdminUsers({ user, lang }) {
     api.getUsers()
       .then(response => {
         let data = response.data || [];
+        
         data.sort((a, b) => {
-          if (a.id === user.id) return -1;
-          if (b.id === user.id) return 1;
+          const aIsMe = a.id === user.id;
+          const bIsMe = b.id === user.id;
+          if (aIsMe && !bIsMe) return -1;
+          if (!aIsMe && bIsMe) return 1;
+
+          const aIsAdmin = a.role === "admin" || a.role === "superadmin";
+          const bIsAdmin = b.role === "admin" || b.role === "superadmin";
+          if (aIsAdmin && !bIsAdmin) return -1;
+          if (!aIsAdmin && bIsAdmin) return 1;
+
           return a.id - b.id;
         });
+        
         setUsers(data);
       })
       .catch(e => setError(e.message));

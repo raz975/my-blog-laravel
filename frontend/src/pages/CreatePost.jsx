@@ -14,33 +14,24 @@ export default function CreatePost({ lang }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setError("Заполните заголовок и текст поста");
+      setError(t(lang, "fillFields") || "Заполните все поля");
       return;
     }
-
     setLoading(true);
     setError("");
 
     try {
-      // 1. Создаем пост
       const response = await api.createPost({ title, content });
-      
-      if (response.success === false) {
-        throw new Error(response.message || "Ошибка при создании поста");
-      }
+      if (response.success === false) throw new Error(response.message);
 
       const newPostId = response.data.id;
-
-      // 2. Загружаем картинку (если выбрана)
       if (image) {
         try {
           await api.uploadImage(newPostId, image);
         } catch (imgError) {
-          // ВЫВОДИМ ТОЧНУЮ ОШИБКУ В ALERT
-          alert("Пост создан, но картинка не загрузилась!\n\nОшибка сервера: " + imgError.message);
+          alert("Пост создан, но картинка не загрузилась: " + imgError.message);
         }
       }
-
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -50,7 +41,8 @@ export default function CreatePost({ lang }) {
   };
 
   const inputStyle = {
-    width: "260px",
+    width: "100%",
+    height: "38px",
     padding: "8px 12px",
     border: "1px solid var(--border-input)",
     borderRadius: "9px",
@@ -65,20 +57,15 @@ export default function CreatePost({ lang }) {
 
   return (
     <div style={{ maxWidth: "400px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
-      <div style={{ 
-        background: "var(--bg-card)", 
-        boxShadow: "var(--shadow)", 
-        borderRadius: "14px", 
-        padding: "20px"
-      }}>
-        <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "20px" }}>
+      <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px" }}>
+        <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "28px" }}>
           {t(lang, "createPost") || "Создать пост"}
         </h2>
 
-        {error && <p style={{ color: "var(--danger)", marginBottom: "10px", fontSize: "13px" }}>{error}</p>}
+        {error && <p style={{ color: "var(--danger)", marginBottom: "10px", fontSize: "13px", textAlign: "center" }}>{error}</p>}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", alignItems: 'center' }}>
-          
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+
           <input
             style={inputStyle}
             type="text"
@@ -100,28 +87,17 @@ export default function CreatePost({ lang }) {
               type="file"
               accept="image/*"
               onChange={(e) => setImage(e.target.files[0])}
-              style={{ fontSize: "13px", color: "var(--text-secondary)" }}
+              style={{ fontSize: "13px", color: "var(--text-secondary)", width: "100%" }}
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            style={{ 
-              border: "none", 
-              borderRadius: "9px", 
-              padding: "9px 15px", 
-              cursor: loading ? "not-allowed" : "pointer", 
-              background: "var(--accent)", 
-              color: "white",
-              fontFamily: "Franklin Gothic Medium",
-              fontSize: "14px",
-              width: "150px"
-            }}
+            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: loading ? "var(--text-muted)" : "var(--accent)", color: "white", fontSize: "14px" }}
           >
-            {loading ? "Создание..." : (t(lang, "create") || "Создать")}
+            {loading ? (t(lang, "saving") || "Создание...") : (t(lang, "create") || "Создать")}
           </button>
-
         </form>
       </div>
     </div>

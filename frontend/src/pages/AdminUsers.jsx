@@ -62,6 +62,8 @@ export default function AdminUsers({ user, lang }) {
   };
 
   const isSuperAdmin = user?.role === "superadmin";
+  const isAdmin = user?.role === "admin" || isSuperAdmin;
+  
   const cellStyle = { padding: "10px", border: "1px solid var(--border-color)" };
 
   return (
@@ -106,6 +108,7 @@ export default function AdminUsers({ user, lang }) {
                       <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>— {t(lang, "you")} —</span>
                     ) : (
                       <>
+                        {/* Смена роли: только superadmin */}
                         {isSuperAdmin && u.role !== "superadmin" && (
                           <button
                             onClick={() => changeRole(u)}
@@ -115,7 +118,8 @@ export default function AdminUsers({ user, lang }) {
                           </button>
                         )}
                         
-                        {u.role !== "superadmin" && (
+                        {/* Удаление и блокировка: для admin и superadmin (кроме супер-админов) */}
+                        {isAdmin && u.role !== "superadmin" && (
                           <>
                             <button
                               onClick={() => deleteUser(u)}

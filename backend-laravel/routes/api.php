@@ -16,13 +16,14 @@ Route::get('/languages', [AdminController::class, 'languages']);
 Route::get('/users/{id}/profile', [ProfileController::class, 'show']);
 
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/register', [AuthController::class, 'register']); // <-- ВОТ ЭТА СТРОКА
+Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    
-    Route::get('/user', function (Request $request) { return $request->user(); });
-    
+
+    Route::get('/user', function (Request $request) {
+        return $request->user(); });
+
     Route::get('/users/me/profile', [ProfileController::class, 'me']);
     Route::put('/auth/update-profile', [ProfileController::class, 'updateProfile']);
     Route::put('/auth/change-password', [ProfileController::class, 'changePassword']);
@@ -40,21 +41,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 
-    Route::middleware('admin')->group(function () {
+    Route::middleware('permission:manage-languages')->group(function () {
         Route::get('/admin/languages', [AdminController::class, 'languages']);
         Route::post('/admin/languages', [AdminController::class, 'createLanguage']);
         Route::put('/admin/languages/{id}', [AdminController::class, 'updateLanguage']);
         Route::delete('/admin/languages/{id}', [AdminController::class, 'deleteLanguage']);
+    });
 
-        Route::get('/admin/users', [AdminController::class, 'users']);
-        Route::put('/admin/users/{id}/block', [AdminController::class, 'blockUser']);
-        Route::put('/admin/users/{id}/role', [AdminController::class, 'changeRole']);
-        Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
-
+    Route::middleware('permission:manage-menu')->group(function () {
         Route::get('/admin/menu', [MenuController::class, 'index']);
         Route::post('/admin/menu', [MenuController::class, 'store']);
         Route::put('/admin/menu/reorder', [MenuController::class, 'reorder']);
         Route::put('/admin/menu/{id}', [MenuController::class, 'update']);
         Route::delete('/admin/menu/{id}', [MenuController::class, 'destroy']);
+    });
+
+    Route::middleware('permission:manage-users')->group(function () {
+        Route::get('/admin/users', [AdminController::class, 'users']);
+        Route::put('/admin/users/{id}/block', [AdminController::class, 'blockUser']);
+        Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+    });
+
+    Route::middleware('permission:change-roles')->group(function () {
+        Route::put('/admin/users/{id}/role', [AdminController::class, 'changeRole']);
     });
 });

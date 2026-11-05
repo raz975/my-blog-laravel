@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,7 +43,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request)
+        public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -58,6 +60,8 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
+        Mail::to($user->email)->send(new WelcomeMail($user->name));
 
         if ($request->hasSession()) {
             $request->session()->regenerate();

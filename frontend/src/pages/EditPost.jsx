@@ -94,6 +94,7 @@ export default function EditPost({ user, lang }) {
               key={l.code}
               type="button"
               onClick={() => setActiveTab(l.code)}
+              className={activeTab === l.code ? "glow-accent" : "glow-gray"}
               style={{
                 border: "none", borderRadius: "6px", padding: "5px 10px", cursor: "pointer",
                 fontFamily: "Franklin Gothic Medium",
@@ -124,6 +125,7 @@ export default function EditPost({ user, lang }) {
           />
 
           <button
+            className="glow-accent"
             type="submit"
             disabled={saving}
             style={{
@@ -131,8 +133,7 @@ export default function EditPost({ user, lang }) {
               cursor: saving ? "not-allowed" : "pointer",
               background: saving ? "var(--text-muted)" : "var(--accent)",
               color: "white", fontFamily: "Franklin Gothic Medium",
-              fontSize: "15px", width: "100%", boxSizing: "border-box",
-              transition: "background-color 0.3s ease"
+              fontSize: "15px", width: "100%", boxSizing: "border-box"
             }}
           >
             {saving ? (t(lang, "saving") || "Сохранение...") : (t(lang, "save") || "Сохранить")}

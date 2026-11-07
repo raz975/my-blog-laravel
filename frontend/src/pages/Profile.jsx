@@ -119,7 +119,7 @@ export default function Profile({ user: currentUser, lang }) {
 
         <div style={{ display: "flex", gap: "10px" }}>
           {isMyProfile ? (
-            <button onClick={() => setIsSettingsOpen(true)} style={{ background: "var(--bg-hover)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "var(--text-main)" }}>
+            <button className="glow-gray"  onClick={() => setIsSettingsOpen(true)} style={{ background: "var(--bg-hover)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "var(--text-main)" }}>
               ⚙️ {t(lang, "settings") || "Настройки"}
             </button>
           ) : (

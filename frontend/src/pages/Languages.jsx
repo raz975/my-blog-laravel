@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
-import { t } from "../translations.js"; 
+import { t } from "../translations.js";
 
 export default function Languages({ user, lang }) {
   const [languages, setLanguages] = useState([]);
@@ -32,7 +32,7 @@ export default function Languages({ user, lang }) {
   };
 
   const remove = async (id) => {
-    if (!confirm(t(lang, "confirmDelete") || "Удалить этот язык?")) return;
+    if (!confirm(t(lang, "deleteLangConfirm") || "Удалить этот язык?")) return;
     try {
       await api.deleteLanguage(id);
       load();
@@ -65,20 +65,21 @@ export default function Languages({ user, lang }) {
   const cellStyle = { padding: "10px", border: "1px solid var(--border-color)" };
   
   const inputStyle = {
-    width: "100%",
-    padding: "8px 12px",
-    border: "1px solid var(--border-input)",
-    borderRadius: "9px",
-    fontFamily: "Franklin Gothic Medium",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "var(--bg-input)",
-    color: "var(--text-main)",
-    marginBottom: "15px"
+    width: "100%", padding: "8px 12px", border: "1px solid var(--border-input)",
+    borderRadius: "9px", fontFamily: "Franklin Gothic Medium", boxSizing: "border-box",
+    outline: "none", background: "var(--bg-input)", color: "var(--text-main)", marginBottom: "15px"
   };
 
   return (
-    <div style={{ display: "flex", gap: "30px", maxWidth: "1000px", margin: "30px auto", color: "var(--text-main)", fontFamily: "Franklin Gothic Medium", alignItems: "flex-start", gap: "40px" }}>
+    <div style={{ 
+      display: "flex", 
+      gap: "30px", 
+      maxWidth: "1000px", 
+      margin: "60px auto", // <-- ИЗМЕНЕНО ЗДЕСЬ (было 30px, стало 60px)
+      color: "var(--text-main)", 
+      fontFamily: "Franklin Gothic Medium", 
+      alignItems: "flex-start" 
+    }}>
       
       <div style={{ flex: 1 }}>
         <h1 style={{ margin: "0 0 20px" }}>{t(lang, "languages") || "Языки"}</h1>
@@ -88,9 +89,9 @@ export default function Languages({ user, lang }) {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--bg-row-alt)" }}>
-                <th style={{cellStyle, width: "150px" }}>{t(lang, "code")}</th>
-                <th style={{cellStyle, width: "150px" }}>{t(lang, "name")}</th>
-                <th style={{cellStyle, width: "150px" }}>{t(lang, "actions")}</th>
+                <th style={cellStyle}>{t(lang, "code") || "Код"}</th>
+                <th style={cellStyle}>{t(lang, "name") || "Название"}</th>
+                <th style={cellStyle}>{t(lang, "actions") || "Действия"}</th>
               </tr>
             </thead>
             <tbody>
@@ -98,12 +99,20 @@ export default function Languages({ user, lang }) {
                 <tr key={l.id} style={{ background: "var(--bg-row)" }}>
                   <td style={cellStyle}>{l.code}</td>
                   <td style={cellStyle}>{l.name}</td>
-                  <td style={{ ...cellStyle, display: "flex", gap: "8px"}}>
-                    <button onClick={() => edit(l)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white", width: "75px", height: "25px" }}>
-                      {t(lang, "edit")}
+                  <td style={{ ...cellStyle, display: "flex", gap: "8px" }}>
+                    <button 
+                      className="glow-accent"
+                      onClick={() => edit(l)} 
+                      style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
+                    >
+                      {t(lang, "edit") || "Изменить"}
                     </button>
-                    <button onClick={() => remove(l.id)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white", width: "75px", height: "25px"  }}>
-                      {t(lang, "delete")}
+                    <button 
+                      className="glow-danger"
+                      onClick={() => remove(l.id)} 
+                      style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
+                    >
+                      {t(lang, "delete") || "Удалить"}
                     </button>
                   </td>
                 </tr>
@@ -119,49 +128,45 @@ export default function Languages({ user, lang }) {
         boxShadow: "var(--shadow)", 
         borderRadius: "14px", 
         padding: "20px", 
-        boxSizing: "border-box",
+        boxSizing: "border-box", 
         color: "var(--text-main)",
-        marginTop: "40px"
+        marginTop: "50px" 
       }}>
         <h2 style={{ margin: "0 0 20px" }}>
-          {editingId ? t(lang, "editLanguage") : t(lang, "addLanguage")}
+          {editingId ? (t(lang, "editLanguage") || "Изменить язык") : (t(lang, "addLanguage") || "Добавить язык")}
         </h2>
         <form onSubmit={submit}>
           <input 
             style={inputStyle} 
-            placeholder={t(lang, "enterCode")} 
+            placeholder={t(lang, "enterCode") || "Код (ru/en/hy)"} 
             value={code} 
             onChange={e => setCode(e.target.value)} 
           />
           <input 
             style={inputStyle} 
-            placeholder={t(lang, "enterName")} 
+            placeholder={t(lang, "enterName") || "Название"} 
             value={name} 
             onChange={e => setName(e.target.value)} 
           />
           
           <div style={{ display: "flex", gap: "10px" }}>
             <button 
+              className="glow-accent"
               type="submit" 
               disabled={loading} 
-              style={{ 
-                border: "none", borderRadius: "10px", padding: "9px 17px", 
-                cursor: "pointer", background: "var(--accent)", color: "white", fontFamily: "Franklin Gothic Medium"
-              }}
+              style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", background: "var(--accent)", color: "white", fontFamily: "Franklin Gothic Medium" }}
             >
-              {loading ? t(lang, "saving") : editingId ? t(lang, "save") : t(lang, "create")}
+              {loading ? (t(lang, "saving") || "Сохранение...") : editingId ? (t(lang, "save") || "Сохранить") : (t(lang, "create") || "Создать")}
             </button>
             
             {editingId && (
               <button 
+                className="glow-danger"
                 type="button" 
                 onClick={reset} 
-                style={{ 
-                  border: "none", borderRadius: "10px", padding: "9px 17px", 
-                  cursor: "pointer", background: "var(--danger)", color: "white", fontFamily: "Franklin Gothic Medium"
-                }}
+                style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", background: "var(--danger)", color: "white", fontFamily: "Franklin Gothic Medium" }}
               >
-                {t(lang, "cancel")}
+                {t(lang, "cancel") || "Отмена"}
               </button>
             )}
           </div>

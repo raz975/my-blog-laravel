@@ -80,7 +80,6 @@ export default function AdminUsers({ user, lang }) {
               const isMe = u.id === user.id;
               
               const canDeleteThisUser = isSuperAdmin || (isAdmin && u.role === "user");
-              
               const canChangeRole = isSuperAdmin && u.role !== "superadmin";
 
               return (
@@ -100,17 +99,29 @@ export default function AdminUsers({ user, lang }) {
                     ) : (
                       <>
                         {canChangeRole && (
-                          <button onClick={() => changeRole(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}>
+                          <button 
+                            className="glow-accent"
+                            onClick={() => changeRole(u)} 
+                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
+                          >
                             {u.role === "admin" ? "→ User" : "→ Admin"}
                           </button>
                         )}
                         
                         {canDeleteThisUser && (
                           <>
-                            <button onClick={() => deleteUser(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}>
+                            <button 
+                              className="glow-danger"
+                              onClick={() => deleteUser(u)} 
+                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
+                            >
                               {t(lang, "delete")}
                             </button>
-                            <button onClick={() => toggleBlock(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}>
+                            <button 
+                              className="glow-warning"
+                              onClick={() => toggleBlock(u)} 
+                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
+                            >
                               {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
                             </button>
                           </>

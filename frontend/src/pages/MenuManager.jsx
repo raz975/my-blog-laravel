@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { t } from "../translations.js";
@@ -181,7 +180,7 @@ export default function MenuManager({ user, lang }) {
         padding: "20px", borderRadius: "14px",
         boxShadow: "var(--shadow-small)"
       }}>
-        <h2 style={{ margin: "0 0 20px", fontSize: "20px" }}>
+        <h2 style={{ margin: "0 0 20px", fontSize: "30px" }}>
           {t(lang, "menu")}
         </h2>
 
@@ -213,7 +212,7 @@ export default function MenuManager({ user, lang }) {
           borderRadius: "14px", padding: "20px",
           width: "340px", boxSizing: "border-box"
         }}>
-          <h2 style={{ margin: "0 0 20px", fontSize: "20px" }}>
+          <h2 style={{ margin: "0 0 20px", fontSize: "30px" }}>
             {editId ? t(lang, "editMenu") : t(lang, "createMenu")}
           </h2>
 
@@ -224,6 +223,7 @@ export default function MenuManager({ user, lang }) {
             {langs.map(l => (
               <button key={l.code} type="button"
                 onClick={() => setTab(l.code)}
+                className={tab === l.code ? "glow-accent" : "glow-gray"}
                 style={{
                   border: "none", borderRadius: "6px",
                   padding: "5px 10px", cursor: "pointer",
@@ -267,6 +267,7 @@ export default function MenuManager({ user, lang }) {
 
             <div style={{ display: "flex", gap: "10px" }}>
               <button type="submit" disabled={load}
+                className="glow-accent"
                 style={{
                   border: "none", borderRadius: "8px",
                   padding: "8px 15px", cursor: "pointer",
@@ -278,6 +279,7 @@ export default function MenuManager({ user, lang }) {
 
               {editId && (
                 <button type="button" onClick={reset}
+                className="glow-danger"
                   style={{
                     border: "none", borderRadius: "8px",
                     padding: "8px 15px", cursor: "pointer",

@@ -11,12 +11,16 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
   const selectStyle = { padding: "8px 12px", border: "1px solid var(--border-input)", borderRadius: "9px", fontFamily: "Franklin Gothic Medium", background: "var(--bg-input)", color: "var(--text-main)", fontSize: "13px", cursor: "pointer", outline: "none" };
 
   return (
-    <nav style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}>
+    <nav 
+      className="navbar-stripe"
+      style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-color)", background: "var(--bg-nav)", display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap", fontFamily: "Franklin Gothic Medium", transition: "background 0.3s" }}
+    >
       
       {user && (
         <>
           {isAdmin && (
             <select
+              className="glow-accent"
               value=""
               onChange={e => {
                 if (e.target.value) navigate(e.target.value);
@@ -48,7 +52,7 @@ export default function Navbar({ user, onLogout, lang, setLang, theme, toggleThe
         <ThemeToggle lang={lang} theme={theme} toggleTheme={toggleTheme} />
         <LanguageSelector lang={lang} setLang={setLang} />
         {user && (
-          <button onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>
+          <button className="glow-danger" onClick={onLogout} style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--danger)", color: "white", fontSize: "14px" }}>
             {t(lang, "logout")}
           </button>
         )}

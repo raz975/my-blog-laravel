@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { t } from "../translations.js";
 
@@ -87,11 +86,9 @@ export default function MenuTree({ items, setItems, onEdit, onDelete, isAdmin, l
     const draggedParent = findParent(items, draggedItem.id);
     const targetParent = findParent(items, target.id);
 
-    // Одинаковый родитель: меняем местами
     if (draggedParent === targetParent) {
       setItems(swapNodes(items, draggedItem.id, target.id));
     } else {
-      // Разные родители: перемещаем внутрь
       const result = removeNode(items, draggedItem.id);
       if (result.removed) {
         setItems(insertAsChild(result.list, target.id, result.removed));
@@ -144,12 +141,14 @@ export default function MenuTree({ items, setItems, onEdit, onDelete, isAdmin, l
 
             <button type="button"
               onClick={() => hasChildren && toggle(item.id)}
+              className="glow-gray"
               style={{
                 border: "none",
                 background: "transparent",
                 cursor: hasChildren ? "pointer" : "default",
                 fontSize: "15px",
-                padding: 0
+                padding: "4px",
+                borderRadius: "6px"
               }}>
               {hasChildren ? (isCollapsed ? "📁" : "📂") : "📄"}
             </button>
@@ -181,6 +180,7 @@ export default function MenuTree({ items, setItems, onEdit, onDelete, isAdmin, l
             {isAdmin && (
               <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
                 <button onClick={() => onEdit(item)}
+                  className="glow-accent"
                   style={{
                     border: "none", borderRadius: "6px",
                     padding: "5px 10px", cursor: "pointer",
@@ -191,6 +191,7 @@ export default function MenuTree({ items, setItems, onEdit, onDelete, isAdmin, l
                 </button>
 
                 <button onClick={() => onDelete(item.id)}
+                  className="glow-danger"
                   style={{
                     border: "none", borderRadius: "6px",
                     padding: "5px 10px", cursor: "pointer",

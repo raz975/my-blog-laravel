@@ -5,6 +5,7 @@ export default function ThemeToggle({ lang, theme, toggleTheme }) {
 
   return (
     <button 
+      className="glow-gray" 
       onClick={toggleTheme} 
       style={{ 
         border: "none", 
@@ -13,12 +14,15 @@ export default function ThemeToggle({ lang, theme, toggleTheme }) {
         borderRadius: "10px", 
         cursor: "pointer", 
         color: "var(--text-main)",
-        fontFamily: "Franklin Gothic Medium"
+        fontFamily: "Franklin Gothic Medium",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px"
       }}
     >
       {theme === "dark" 
-        ? (t(lang, "light") || "light ☀️") 
-        : (t(lang, "dark") || "dark 🌙")}
+        ? (t(lang, "light") || "☀️ Light") 
+        : (t(lang, "dark") || "🌙 Dark")}
     </button>
   );
 }

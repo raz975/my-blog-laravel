@@ -68,14 +68,14 @@ export default function Post({ user, lang }) {
             {canEdit && (
               <Link 
                 to={`/posts/${post.id}/edit`} 
-                className="btn-action"
+                className="btn-action glow-accent"
                 style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "6px 12px", borderRadius: "8px", fontSize: "13px" }}
               >
                 {t(lang, "edit")}
               </Link>
             )}
             {canDelete && (
-              <button onClick={handleDelete} style={{ border: "none", background: "var(--danger)", color: "white", padding: "6px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>
+              <button className="glow-danger" onClick={handleDelete} style={{ border: "none", background: "var(--danger)", color: "white", padding: "6px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>
                 {t(lang, "delete")}
               </button>
             )}
@@ -106,15 +106,17 @@ export default function Post({ user, lang }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: "15px", paddingTop: "15px", borderTop: "1px solid var(--border-color)" }}>
           <button 
+            className="glow-danger"
             onClick={handleLike} 
-            style={{ display: "flex", alignItems: "center", gap: "6px", border: "none", background: "var(--bg-input)", cursor: "pointer", fontSize: "14px", padding: "8px 14px", borderRadius: "20px", color: post.liked_by_me ? "#e91e63" : "var(--text-main)", fontWeight: "bold" }}
+            style={{ display: "flex", alignItems: "center", gap: "6px", border: "none", backgroundColor: "transparent", cursor: "pointer", fontSize: "14px", padding: "8px 14px", borderRadius: "20px", color: post.liked_by_me ? "#e91e63" : "var(--text-main)", fontWeight: "bold" }}
           >
             {post.liked_by_me ? "❤️" : "🤍"} {post.likes || 0}
           </button>
           
           <button 
+            className="glow-accent"
             onClick={() => setIsCommentsOpen(true)} 
-            style={{ display: "flex", alignItems: "center", gap: "6px", border: "none", background: "var(--bg-input)", cursor: "pointer", fontSize: "14px", padding: "8px 14px", borderRadius: "20px", color: "var(--text-main)", fontWeight: "bold" }}
+            style={{ display: "flex", alignItems: "center", gap: "6px", border: "none", backgroundColor: "transparent", cursor: "pointer", fontSize: "14px", padding: "8px 14px", borderRadius: "20px", color: "var(--text-main)", fontWeight: "bold" }}
           >
             💬 {t(lang, "comments")}
           </button>

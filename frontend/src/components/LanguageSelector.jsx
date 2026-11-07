@@ -9,7 +9,6 @@ export default function LanguageSelector({ lang, setLang }) {
     api.getPublicLanguages()
       .then(response => {
         const dbLangs = response.data || [];
-        
         const supportedLangs = dbLangs.filter(l => translations[l.code]);
         
         if (supportedLangs.length > 0) {
@@ -41,13 +40,17 @@ export default function LanguageSelector({ lang, setLang }) {
     color: "var(--text-main)",
     fontSize: "13px",
     cursor: "pointer",
-    outline: "none",
-    transition: "background 0.2s"
+    outline: "none"
   };
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <select value={lang} onChange={changeLanguage} style={selectStyle}>
+      <select 
+        value={lang} 
+        onChange={changeLanguage} 
+        style={selectStyle}
+        className="glow-accent"
+      >
         {languages.map(l => (
           <option key={l.id} value={l.code}>
             {l.name}

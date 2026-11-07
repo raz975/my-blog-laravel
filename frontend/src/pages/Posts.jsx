@@ -26,18 +26,93 @@ function PostCard({ post, lang, user, onOpenComments }) {
   };
 
   return (
-    <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", fontFamily: "Franklin Gothic Medium", width: "205px", height: "260px", boxSizing: "border-box", overflow: "hidden", display: "flex", flexDirection: "column", color: "var(--text-main)", transition: "background 0.3s" }}>
-      {image && <img src={image} alt={post.title} style={{ width: "100%", height: "90px", objectFit: "cover", borderRadius: "8px", marginBottom: "8px" }} />}
+    <div style={{ 
+      background: "var(--bg-card)", 
+      boxShadow: "var(--shadow)", 
+      borderRadius: "14px", 
+      padding: "20px", 
+      fontFamily: "Franklin Gothic Medium", 
+      width: "240px",    
+      height: "300px",  
+      boxSizing: "border-box", 
+      overflow: "hidden", 
+      display: "flex", 
+      flexDirection: "column", 
+      color: "var(--text-main)", 
+      transition: "background 0.3s" 
+    }}>
+      {image && <img src={image} alt={post.title} style={{ width: "100%", height: "110px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} />}
+      
       <h2 style={{ margin: "0 0 8px", fontSize: "20px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</h2>
+      
       <p style={{ margin: "5px 0", fontSize: "13px", color: "var(--text-secondary)" }}>
         {t(lang, "author")}: <Link to={`/user/${post.user_id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{post.author || `User ${post.user_id}`}</Link>
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "auto" }}>
-        <button onClick={toggleLike} disabled={loading || !user} style={{ border: "none", background: "transparent", cursor: user ? "pointer" : "not-allowed", fontSize: "15px", padding: "4px", color: likedByMe ? "#e91e63" : "var(--text-muted)" }}>
+      
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "auto" }}>
+        <button 
+          className="glow-danger"
+          onClick={toggleLike} 
+          disabled={loading || !user} 
+          style={{ 
+            border: "none", 
+            backgroundColor: "transparent", 
+            cursor: user ? "pointer" : "not-allowed", 
+            fontSize: "15px", 
+            padding: "6px 8px", 
+            borderRadius: "20px", 
+            color: likedByMe ? "#e91e63" : "var(--text-muted)", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "4px",
+            outline: "none",
+            appearance: "none"
+          }}
+        >
           {likedByMe ? "❤️" : "🤍"} {likes}
         </button>
-        <button onClick={() => onOpenComments(post)} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: "15px", padding: "4px", color: "var(--text-muted)" }}>💬</button>
-        <Link to={`/posts/${post.id}`} style={{ border: "none", borderRadius: "10px", padding: "6px 10px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", textDecoration: "none", display: "inline-block", background: "var(--accent)", color: "white", fontSize: "12px", marginLeft: "auto" }}>{t(lang, "readMore")}</Link>
+        
+        <button 
+          className="glow-accent"
+          onClick={() => onOpenComments(post)} 
+          style={{ 
+            border: "none", 
+            backgroundColor: "transparent", 
+            cursor: "pointer", 
+            fontSize: "15px", 
+            padding: "6px 8px", 
+            borderRadius: "20px", 
+            color: "var(--text-muted)", 
+            display: "flex", 
+            alignItems: "center",
+            outline: "none",
+            appearance: "none"
+          }}
+        >
+          💬
+        </button>
+        
+        <Link 
+          to={`/posts/${post.id}`} 
+          className="btn-action glow-accent"
+          style={{ 
+            border: "none", 
+            borderRadius: "10px", 
+            padding: "6px 12px", 
+            cursor: "pointer", 
+            fontFamily: "Franklin Gothic Medium", 
+            textDecoration: "none", 
+            display: "inline-block", 
+            background: "var(--accent)", 
+            color: "white", 
+            fontSize: "13px", 
+            marginLeft: "auto",
+            whiteSpace: "nowrap",
+            flexShrink: 0         
+          }}
+        >
+          {t(lang, "readMore")}
+        </Link>
       </div>
     </div>
   );
@@ -72,11 +147,15 @@ export default function Posts({ user, lang }) {
         <h1 style={{ fontFamily: "Franklin Gothic Medium", margin: 0, color: "var(--text-main)" }}>{t(lang, "allPosts")}</h1>
         <input style={inputStyle} type="text" placeholder={t(lang, "search")} value={search} onChange={e => setSearch(e.target.value)} />
       </div>
+      
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+      
       <div style={{ display: "flex", gap: "20px", rowGap: "20px", flexWrap: "wrap" }}>
         {posts.map(post => <PostCard key={post.id} post={post} lang={lang} user={user} onOpenComments={setOpenComments} />)}
       </div>
+      
       {!posts.length && !error && <p style={{ color: "var(--text-main)" }}>{t(lang, "noPosts")}</p>}
+      
       {openComments && <CommentsModal post={openComments} user={user} lang={lang} onClose={() => setOpenComments(null)} />}
     </>
   );

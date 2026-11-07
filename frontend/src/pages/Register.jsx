@@ -34,7 +34,7 @@ export default function Register({ lang }) {
         <input style={inputStyle} name="email" type="email" placeholder={t(lang, "email")} value={form.email} onChange={change} required />
         <input style={inputStyle} name="password" type="password" placeholder={t(lang, "password")} value={form.password} onChange={change} required />
         {error && <p style={{ color: "var(--danger)", margin: "0" }}>{error}</p>}
-        <button disabled={loading} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", marginTop: "5px", background: "var(--accent)", color: "white", width: "105px", height: "35px" }}>
+        <button className="glow-accent" disabled={loading} style={{ border: "none", borderRadius: "10px", padding: "9px 17px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", marginTop: "5px", background: "var(--accent)", color: "white", width: "105px", height: "35px" }}>
           {loading ? t(lang, "loading") : t(lang, "registration")}
         </button>
       </form>

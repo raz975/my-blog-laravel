@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { t } from "../translations.js";
@@ -8,17 +8,20 @@ export default function CreatePost({ lang }) {
   const [contentTrans, setContentTrans] = useState({});
   const [languages, setLanguages] = useState([]);
   const [activeTab, setActiveTab] = useState("en");
-
+  
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Ссылка на скрытый инпут файла
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     api.getPublicLanguages().then(res => {
       const langs = res.data || [];
       setLanguages(langs);
-
+      
       const initialTitles = {};
       const initialContents = {};
       langs.forEach(l => {
@@ -27,15 +30,15 @@ export default function CreatePost({ lang }) {
       });
       setTitleTrans(initialTitles);
       setContentTrans(initialContents);
-
+      
       const active = langs.find(l => l.code === lang) || langs[0];
       if (active) setActiveTab(active.code);
-    }).catch(() => { });
+    }).catch(() => {});
   }, [lang]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const translations = languages.map(l => ({
       locale: l.code,
       title: titleTrans[l.code] || "",
@@ -46,7 +49,7 @@ export default function CreatePost({ lang }) {
       setError(t(lang, "fillFields") || "Заполните хотя бы один язык полностью");
       return;
     }
-
+    
     setLoading(true);
     setError("");
 
@@ -84,7 +87,7 @@ export default function CreatePost({ lang }) {
         <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "30px" }}>
           {t(lang, "createPost") || "Создать пост"}
         </h2>
-
+        
         {error && <p style={{ color: "var(--danger)", marginBottom: "10px", fontSize: "13px", textAlign: "center" }}>{error}</p>}
 
         <div style={{ display: "flex", gap: "5px", marginBottom: "15px", flexWrap: "wrap" }}>
@@ -93,6 +96,7 @@ export default function CreatePost({ lang }) {
               key={l.code}
               type="button"
               onClick={() => setActiveTab(l.code)}
+              className={activeTab === l.code ? "glow-accent" : "glow-gray"}
               style={{
                 border: "none", borderRadius: "6px", padding: "5px 10px", cursor: "pointer",
                 fontFamily: "Franklin Gothic Medium",
@@ -104,7 +108,7 @@ export default function CreatePost({ lang }) {
             </button>
           ))}
         </div>
-
+        
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
           <input
             style={inputStyle}
@@ -122,19 +126,42 @@ export default function CreatePost({ lang }) {
             onChange={(e) => setContentTrans({ ...contentTrans, [activeTab]: e.target.value })}
           />
 
-          <div style={{ marginBottom: "15px" }}>
+          <div style={{ marginBottom: "15px", display: "flex", alignItems: "center", gap: "10px" }}>
             <input
               type="file"
               accept="image/*"
+              ref={fileInputRef}
               onChange={(e) => setImage(e.target.files[0])}
-              style={{ fontSize: "13px", color: "var(--text-secondary)", width: "100%" }}
+              style={{ display: "none" }}
             />
+            <button
+              type="button"
+              className="glow-accent"
+              onClick={() => fileInputRef.current.click()}
+              style={{
+                border: "none", borderRadius: "9px", padding: "8px 16px",
+                cursor: "pointer", background: "var(--accent)", color: "white",
+                fontFamily: "Franklin Gothic Medium", fontSize: "14px"
+              }}
+            >
+              Выберите файл
+            </button>
+            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+              {image ? image.name : "Файл не выбран"}
+            </span>
           </div>
 
           <button
+            className="glow-accent"
             type="submit"
             disabled={loading}
-            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", fontSize: "14px" }}
+            style={{
+              border: "none", borderRadius: "9px", padding: "10px",
+              cursor: loading ? "not-allowed" : "pointer",
+              background: loading ? "var(--text-muted)" : "var(--accent)",
+              color: "white", fontFamily: "Franklin Gothic Medium",
+              fontSize: "15px", width: "100%", boxSizing: "border-box"
+            }}
           >
             {loading ? (t(lang, "saving") || "Создание...") : (t(lang, "create") || "Создать")}
           </button>

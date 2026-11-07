@@ -71,15 +71,7 @@ export default function Languages({ user, lang }) {
   };
 
   return (
-    <div style={{ 
-      display: "flex", 
-      gap: "30px", 
-      maxWidth: "1000px", 
-      margin: "60px auto", // <-- ИЗМЕНЕНО ЗДЕСЬ (было 30px, стало 60px)
-      color: "var(--text-main)", 
-      fontFamily: "Franklin Gothic Medium", 
-      alignItems: "flex-start" 
-    }}>
+    <div style={{ display: "flex", gap: "30px", maxWidth: "1000px", margin: "60px auto", color: "var(--text-main)", fontFamily: "Franklin Gothic Medium", alignItems: "flex-start" }}>
       
       <div style={{ flex: 1 }}>
         <h1 style={{ margin: "0 0 20px" }}>{t(lang, "languages") || "Языки"}</h1>
@@ -99,22 +91,24 @@ export default function Languages({ user, lang }) {
                 <tr key={l.id} style={{ background: "var(--bg-row)" }}>
                   <td style={cellStyle}>{l.code}</td>
                   <td style={cellStyle}>{l.name}</td>
-                  <td style={{ ...cellStyle, display: "flex", gap: "8px" }}>
+                  
+                  <td style={{ ...cellStyle, display: "flex", gap: "6px" }}>
                     <button 
                       className="glow-accent"
                       onClick={() => edit(l)} 
-                      style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
+                      style={{ border: "none", borderRadius: "6px", padding: "4px 8px", cursor: "pointer", background: "var(--accent)", color: "white", fontSize: "12px" }}
                     >
                       {t(lang, "edit") || "Изменить"}
                     </button>
                     <button 
                       className="glow-danger"
                       onClick={() => remove(l.id)} 
-                      style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
+                      style={{ border: "none", borderRadius: "6px", padding: "4px 8px", cursor: "pointer", background: "var(--danger)", color: "white", fontSize: "12px" }}
                     >
                       {t(lang, "delete") || "Удалить"}
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -122,16 +116,7 @@ export default function Languages({ user, lang }) {
         </div>
       </div>
 
-      <div style={{ 
-        width: "340px", 
-        background: "var(--bg-card)", 
-        boxShadow: "var(--shadow)", 
-        borderRadius: "14px", 
-        padding: "20px", 
-        boxSizing: "border-box", 
-        color: "var(--text-main)",
-        marginTop: "50px" 
-      }}>
+      <div style={{ width: "340px", background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", boxSizing: "border-box", color: "var(--text-main)", marginTop: "20px" }}>
         <h2 style={{ margin: "0 0 20px" }}>
           {editingId ? (t(lang, "editLanguage") || "Изменить язык") : (t(lang, "addLanguage") || "Добавить язык")}
         </h2>

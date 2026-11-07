@@ -10,21 +10,15 @@ export default function AdminUsers({ user, lang }) {
     api.getUsers()
       .then(response => {
         let data = response.data || [];
-        
         data.sort((a, b) => {
-          const aIsMe = a.id === user.id;
-          const bIsMe = b.id === user.id;
-          if (aIsMe && !bIsMe) return -1;
-          if (!aIsMe && bIsMe) return 1;
-
+          if (a.id === user.id) return -1;
+          if (b.id === user.id) return 1;
           const aIsAdmin = a.role === "admin" || a.role === "superadmin";
           const bIsAdmin = b.role === "admin" || b.role === "superadmin";
           if (aIsAdmin && !bIsAdmin) return -1;
           if (!aIsAdmin && bIsAdmin) return 1;
-
           return a.id - b.id;
         });
-        
         setUsers(data);
       })
       .catch(e => setError(e.message));
@@ -34,8 +28,7 @@ export default function AdminUsers({ user, lang }) {
 
   const toggleBlock = async u => {
     if (u.id === user.id) { alert(t(lang, "cannotBlockSelf")); return; }
-    const action = u.is_blocked === 1 ? t(lang, "confirmUnblock") : t(lang, "confirmBlock");
-    if (!confirm(action)) return;
+    if (!confirm(u.is_blocked === 1 ? t(lang, "confirmUnblock") : t(lang, "confirmBlock"))) return;
     try {
       await api.blockUser(u.id, u.is_blocked === 1 ? 0 : 1);
       load();
@@ -54,7 +47,7 @@ export default function AdminUsers({ user, lang }) {
 
   const deleteUser = async u => {
     if (u.id === user.id) { alert(t(lang, "cannotDeleteSelf")); return; }
-    if (!confirm(`${t(lang, "confirmDeleteUser")} ${u.name} (${u.email})?`)) return;
+    if (!confirm(`${t(lang, "confirmDeleteUser")} ${u.name}?`)) return;
     try {
       await api.deleteUser(u.id);
       load();
@@ -85,15 +78,13 @@ export default function AdminUsers({ user, lang }) {
           <tbody>
             {users.map(u => {
               const isMe = u.id === user.id;
+              
+              const canDeleteThisUser = isSuperAdmin || (isAdmin && u.role === "user");
+              
+              const canChangeRole = isSuperAdmin && u.role !== "superadmin";
+
               return (
-                <tr
-                  key={u.id}
-                  style={{
-                    background: isMe ? "var(--bg-me)" : u.is_blocked === 1 ? "var(--bg-blocked)" : "var(--bg-row)",
-                    fontWeight: isMe ? "bold" : "normal",
-                    color: "var(--text-main)"
-                  }}
-                >
+                <tr key={u.id} style={{ background: isMe ? "var(--bg-me)" : u.is_blocked === 1 ? "var(--bg-blocked)" : "var(--bg-row)", fontWeight: isMe ? "bold" : "normal", color: "var(--text-main)" }}>
                   <td style={cellStyle}>{u.id}</td>
                   <td style={cellStyle}>
                     {u.name} {isMe && <small style={{ color: "var(--success)" }}>({t(lang, "you")})</small>}
@@ -108,29 +99,18 @@ export default function AdminUsers({ user, lang }) {
                       <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>— {t(lang, "you")} —</span>
                     ) : (
                       <>
-                        {/* Смена роли: только superadmin */}
-                        {isSuperAdmin && u.role !== "superadmin" && (
-                          <button
-                            onClick={() => changeRole(u)}
-                            style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}
-                          >
+                        {canChangeRole && (
+                          <button onClick={() => changeRole(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--accent)", color: "white" }}>
                             {u.role === "admin" ? "→ User" : "→ Admin"}
                           </button>
                         )}
                         
-                        {/* Удаление и блокировка: для admin и superadmin (кроме супер-админов) */}
-                        {isAdmin && u.role !== "superadmin" && (
+                        {canDeleteThisUser && (
                           <>
-                            <button
-                              onClick={() => deleteUser(u)}
-                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}
-                            >
+                            <button onClick={() => deleteUser(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: "var(--danger)", color: "white" }}>
                               {t(lang, "delete")}
                             </button>
-                            <button
-                              onClick={() => toggleBlock(u)}
-                              style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}
-                            >
+                            <button onClick={() => toggleBlock(u)} style={{ border: "none", borderRadius: "8px", padding: "5px 10px", cursor: "pointer", background: u.is_blocked === 1 ? "var(--success)" : "var(--warning)", color: "white" }}>
                               {u.is_blocked === 1 ? t(lang, "unblock") : t(lang, "block")}
                             </button>
                           </>

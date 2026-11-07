@@ -27,6 +27,7 @@ class PostController extends Controller
 
         $posts->each(function ($post) {
             $post->author = $post->user ? $post->user->name : 'Unknown';
+            $post->author_role = $post->user ? $post->user->role : 'user';
             $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
             $post->likes = $post->likes_count;
             $post->liked_by_me = (bool) $post->liked_by_me;
@@ -48,6 +49,7 @@ class PostController extends Controller
         if (!$post) return response()->json(['success' => false, 'message' => 'Post not found'], 404);
 
         $post->author = $post->user ? $post->user->name : 'Unknown';
+        $post->author_role = $post->user ? $post->user->role : 'user';
         $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
         $post->likes = $post->likes_count;
         $post->liked_by_me = (bool) $post->liked_by_me;

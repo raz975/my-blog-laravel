@@ -15,7 +15,8 @@ export default function MenuManager({ user, lang }) {
   const [err, setErr] = useState("");
   const [load, setLoad] = useState(false);
 
-  const isAdmin = user?.role === "admin";
+  // ИСПРАВЛЕНИЕ: разрешаем и admin, и superadmin
+  const canManageMenu = user?.role === "admin" || user?.role === "superadmin";
 
   const loadData = () => {
     api.getMenu(lang).then(res => {
@@ -45,23 +46,17 @@ export default function MenuManager({ user, lang }) {
     const allOrdered = [];
     const collect = (list, currentParentId = null) => {
       list.forEach((item, index) => {
-        allOrdered.push({ 
-          id: item.id, 
-          sort_order: index, 
-          parent_id: currentParentId 
-        });
-        if (item.children?.length) {
-          collect(item.children, item.id);
-        }
+        allOrdered.push({ id: item.id, sort_order: index, parent_id: currentParentId });
+        if (item.children?.length) collect(item.children, item.id);
       });
     };
     collect(newTopItems);
 
     api.reorderMenu(allOrdered)
-      .then(() => loadData()) 
+      .then(() => loadData())
       .catch(err => {
         setErr(err.message);
-        loadData(); 
+        loadData();
       });
   };
 
@@ -73,7 +68,7 @@ export default function MenuManager({ user, lang }) {
   };
 
   const edit = (item) => {
-    if (!isAdmin) return;
+    if (!canManageMenu) return;
     setEditId(item.id);
     setUrl(item.url || "");
     setParent(item.parent_id || "");
@@ -81,7 +76,7 @@ export default function MenuManager({ user, lang }) {
   };
 
   const remove = async (id) => {
-    if (!isAdmin || !window.confirm(t(lang, "deleteMenuConfirm"))) return;
+    if (!canManageMenu || !window.confirm(t(lang, "deleteMenuConfirm"))) return;
     try {
       await api.deleteMenuItem(id);
       reset(); loadData();
@@ -90,7 +85,7 @@ export default function MenuManager({ user, lang }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!isAdmin || load) return;
+    if (!canManageMenu || load) return;
     setLoad(true); setErr("");
 
     if (!trans[tab]?.trim()) {
@@ -108,54 +103,87 @@ export default function MenuManager({ user, lang }) {
     finally { setLoad(false); }
   };
 
-  const inp = { width: "100%", height: "36px", padding: "6px 10px", border: "1px solid var(--border-input)", borderRadius: "8px", background: "var(--bg-input)", color: "var(--text-main)", boxSizing: "border-box" };
+  const inp = { width: "100%", height: "38px", padding: "8px 12px", border: "1px solid var(--border-input)", borderRadius: "9px", background: "var(--bg-input)", color: "var(--text-main)", boxSizing: "border-box" };
 
   return (
-    <div style={{ display: "flex", gap: "30px", alignItems: "flex-start", maxWidth: "900px", margin: "20px auto", color: "var(--text-main)", flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: "30px", alignItems: "flex-start", maxWidth: "950px", margin: "30px auto", color: "var(--text-main)", flexWrap: "wrap" }}>
       
-      <aside style={{ width: "400px", background: "var(--bg-row-alt)", padding: "15px", borderRadius: "12px", boxShadow: "var(--shadow-small)" }}>
-        <h2 style={{ margin: "0 0 15px", fontSize: "18px" }}>{t(lang, "menu") || "Меню"}</h2>
-        {err && <p style={{ color: "var(--danger)", fontSize: "12px" }}>{err}</p>}
-        {isAdmin && <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "10px" }}>{t(lang, "dragToReorder")}</p>}
+      <aside style={{ width: "420px", background: "var(--bg-row-alt)", padding: "20px", borderRadius: "14px", boxShadow: "var(--shadow-small)" }}>
+        <h2 style={{ margin: "0 0 20px", fontSize: "20px" }}>{t(lang, "menu")}</h2>
+        {err && <p style={{ color: "var(--danger)", fontSize: "13px" }}>{err}</p>}
+        {canManageMenu && <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "15px" }}>{t(lang, "dragToReorder")}</p>}
         
         {menu.length ? (
-          <MenuTree items={menu} setItems={handleReorder} onEdit={edit} onDelete={remove} isAdmin={isAdmin} lang={lang} />
+          <MenuTree 
+            items={menu} 
+            setItems={handleReorder} 
+            onEdit={edit} 
+            onDelete={remove} 
+            isAdmin={canManageMenu} 
+            lang={lang} 
+          />
         ) : (
           !err && <p style={{ fontSize: "14px" }}>{t(lang, "noMenuItems")}</p>
         )}
       </aside>
 
-      {isAdmin && (
-        <div style={{ width: "320px", background: "var(--bg-card)", padding: "20px", borderRadius: "12px", boxShadow: "var(--shadow)" }}>
-          <h2 style={{ margin: "0 0 15px", fontSize: "18px" }}>
+      {canManageMenu && (
+        <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", width: "340px", boxSizing: "border-box" }}>
+          <h2 style={{ margin: "0 0 20px", fontSize: "20px" }}>
             {editId ? t(lang, "editMenu") : t(lang, "createMenu")}
           </h2>
 
-          <div style={{ display: "flex", gap: "5px", marginBottom: "12px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "5px", marginBottom: "15px", flexWrap: "wrap" }}>
             {langs.map(l => (
-              <button key={l.code} onClick={() => setTab(l.code)} type="button" style={{ border: "none", borderRadius: "6px", padding: "4px 8px", cursor: "pointer", background: tab === l.code ? "var(--accent)" : "var(--bg-hover)", color: tab === l.code ? "white" : "var(--text-main)", fontSize: "11px" }}>
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setTab(l.code)}
+                style={{
+                  border: "none", borderRadius: "6px", padding: "5px 10px", cursor: "pointer",
+                  fontFamily: "Franklin Gothic Medium",
+                  background: tab === l.code ? "var(--accent)" : "var(--bg-hover)",
+                  color: tab === l.code ? "white" : "var(--text-main)", fontSize: "12px"
+                }}
+              >
                 {l.name}
               </button>
             ))}
           </div>
 
-          <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <input style={inp} placeholder={`${t(lang, "itemName")} (${tab})`} value={trans[tab] || ""} onChange={e => setTrans({ ...trans, [tab]: e.target.value })} required />
-            <input style={inp} placeholder={t(lang, "urlRoute")} value={url} onChange={e => setUrl(e.target.value)} />
-            
-            <select style={{ ...inp, cursor: "pointer" }} value={parent} onChange={e => setParent(e.target.value)}>
+          <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <input
+              style={inp}
+              placeholder={`${t(lang, "itemName")} (${tab})`}
+              value={trans[tab] || ""}
+              onChange={e => setTrans({ ...trans, [tab]: e.target.value })}
+              required
+            />
+
+            <input
+              style={inp}
+              placeholder={t(lang, "urlRoute")}
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+            />
+
+            <select
+              style={{ ...inp, cursor: "pointer" }}
+              value={parent}
+              onChange={e => setParent(e.target.value)}
+            >
               <option value="">{t(lang, "noParent")}</option>
-              {items.filter(i => i.id !== editId).map(i => (
-                <option key={i.id} value={i.id}>{i.name}</option>
+              {items.filter(x => Number(x.id) !== Number(editId)).map(x => (
+                <option key={x.id} value={x.id}>{x.name}</option>
               ))}
             </select>
 
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button type="submit" disabled={load} style={{ background: "var(--accent)", color: "white", border: "none", padding: "8px 14px", borderRadius: "8px", cursor: load ? "not-allowed" : "pointer", fontSize: "13px" }}>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button type="submit" disabled={load} style={{ border: "none", borderRadius: "8px", padding: "8px 15px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", height: "36px", fontSize: "13px" }}>
                 {load ? "..." : editId ? t(lang, "save") : t(lang, "create")}
               </button>
               {editId && (
-                <button type="button" onClick={reset} style={{ background: "var(--danger)", color: "white", border: "none", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>
+                <button type="button" onClick={reset} style={{ border: "none", borderRadius: "8px", padding: "8px 15px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", height: "36px", color: "white", backgroundColor: "var(--danger)", fontSize: "13px" }}>
                   {t(lang, "cancel")}
                 </button>
               )}

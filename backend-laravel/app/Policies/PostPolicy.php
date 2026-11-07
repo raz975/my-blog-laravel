@@ -14,6 +14,15 @@ class PostPolicy
 
     public function delete(User $user, Post $post)
     {
-        return $user->id === $post->user_id || $user->role === 'admin';
+        if ($user->id === $post->user_id) return true;
+        
+        if ($user->role === 'superadmin') return true;
+
+        if ($user->role === 'admin') {
+            $postAuthor = User::find($post->user_id);
+            return $postAuthor && $postAuthor->role === 'user';
+        }
+
+        return false;
     }
 }

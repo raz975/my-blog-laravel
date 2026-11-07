@@ -131,14 +131,7 @@ export default function CreatePost({ lang }) {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              border: "none", borderRadius: "9px", padding: "10px",
-              cursor: loading ? "not-allowed" : "pointer",
-              background: loading ? "var(--text-muted)" : "var(--accent)",
-              color: "white", fontFamily: "Franklin Gothic Medium",
-              fontSize: "15px", width: "100%", boxSizing: "border-box",
-              transition: "background-color 0.3s ease"
-            }}
+            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", fontSize: "14px" }}
           >
             {loading ? (t(lang, "saving") || "Создание...") : (t(lang, "create") || "Создать")}
           </button>

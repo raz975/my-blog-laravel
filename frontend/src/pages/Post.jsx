@@ -54,7 +54,6 @@ export default function Post({ user, lang }) {
   const authorRole = post.author_role || "user";
   
   const canDelete = isAuthor || isSuperAdmin || (isAdmin && authorRole === "user");
-  
   const canEdit = isAuthor; 
 
   return (
@@ -67,7 +66,11 @@ export default function Post({ user, lang }) {
           
           <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
             {canEdit && (
-              <Link to={`/posts/${post.id}/edit`} style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "6px 12px", borderRadius: "8px", fontSize: "13px" }}>
+              <Link 
+                to={`/posts/${post.id}/edit`} 
+                className="btn-action"
+                style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "6px 12px", borderRadius: "8px", fontSize: "13px" }}
+              >
                 {t(lang, "edit")}
               </Link>
             )}

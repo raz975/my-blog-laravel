@@ -1,42 +1,28 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
+import { translations } from "../translations.js";
 
 export default function LanguageSelector({ lang, setLang }) {
   const [languages, setLanguages] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.getPublicLanguages()
       .then(response => {
-
-        let langs = [];
-        if (Array.isArray(response)) {
-          langs = response;
-        } else if (response && Array.isArray(response.data)) {
-          langs = response.data;
-        } else if (response && Array.isArray(response.languages)) {
-          langs = response.languages;
-        }
-
-        if (langs.length > 0) {
-          setLanguages(langs);
+        const dbLangs = response.data || [];
+        
+        const supportedLangs = dbLangs.filter(l => translations[l.code]);
+        
+        if (supportedLangs.length > 0) {
+          setLanguages(supportedLangs);
         } else {
-          setLanguages([
-            { id: 1, code: "ru", name: "Русский" },
-            { id: 2, code: "en", name: "English" },
-            { id: 3, code: "hy", name: "Հայերեն" }
-          ]);
+          setLanguages([{ id: 1, code: "ru", name: "Русский" }]);
         }
-        setLoading(false);
       })
-      .catch((error) => {
-        console.error("Ошибка при загрузке языков:", error);
+      .catch(() => {
         setLanguages([
           { id: 1, code: "ru", name: "Русский" },
           { id: 2, code: "en", name: "English" },
-          { id: 3, code: "hy", name: "Հայերեն" }
         ]);
-        setLoading(false);
       });
   }, []);
 
@@ -62,7 +48,6 @@ export default function LanguageSelector({ lang, setLang }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       <select value={lang} onChange={changeLanguage} style={selectStyle}>
-        {loading && <option value="" disabled>Загрузка...</option>}
         {languages.map(l => (
           <option key={l.id} value={l.code}>
             {l.name}

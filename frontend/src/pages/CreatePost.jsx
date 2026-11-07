@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
@@ -36,11 +35,15 @@ export default function CreatePost({ lang }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentTitle = titleTrans[activeTab] || "";
-    const currentContent = contentTrans[activeTab] || "";
+    
+    const translations = languages.map(l => ({
+      locale: l.code,
+      title: titleTrans[l.code] || "",
+      content: contentTrans[l.code] || ""
+    })).filter(tr => tr.title.trim() && tr.content.trim());
 
-    if (!currentTitle.trim() || !currentContent.trim()) {
-      setError(t(lang, "fillFields") || "Заполните все поля");
+    if (translations.length === 0) {
+      setError(t(lang, "fillFields") || "Заполните хотя бы один язык полностью");
       return;
     }
     
@@ -48,7 +51,7 @@ export default function CreatePost({ lang }) {
     setError("");
 
     try {
-      const response = await api.createPost({ title: currentTitle, content: currentContent });
+      const response = await api.createPost({ translations });
       if (response.success === false) throw new Error(response.message);
 
       const newPostId = response.data.id;
@@ -131,7 +134,14 @@ export default function CreatePost({ lang }) {
           <button
             type="submit"
             disabled={loading}
-            style={{ border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontFamily: "Franklin Gothic Medium", background: "var(--accent)", color: "white", fontSize: "14px" }}
+            style={{
+              border: "none", borderRadius: "9px", padding: "10px",
+              cursor: loading ? "not-allowed" : "pointer",
+              background: loading ? "var(--text-muted)" : "var(--accent)",
+              color: "white", fontFamily: "Franklin Gothic Medium",
+              fontSize: "15px", width: "100%", boxSizing: "border-box",
+              transition: "background-color 0.3s ease"
+            }}
           >
             {loading ? (t(lang, "saving") || "Создание...") : (t(lang, "create") || "Создать")}
           </button>

@@ -15,7 +15,6 @@ export default function MenuManager({ user, lang }) {
   const [err, setErr] = useState("");
   const [load, setLoad] = useState(false);
 
-  // ИСПРАВЛЕНИЕ: разрешаем и admin, и superadmin
   const canManageMenu = user?.role === "admin" || user?.role === "superadmin";
 
   const loadData = () => {
@@ -88,12 +87,16 @@ export default function MenuManager({ user, lang }) {
     if (!canManageMenu || load) return;
     setLoad(true); setErr("");
 
-    if (!trans[tab]?.trim()) {
-      setErr(t(lang, "titleRequired") + ": " + tab);
+    if (!trans['ru']?.trim()) {
+      setErr(t(lang, "titleRequired") + ": ru");
       setLoad(false); return;
     }
 
-    const data = { name: trans[tab].trim(), title: trans[tab].trim(), url: url || null, parent_id: parent ? Number(parent) : null };
+    const data = { 
+        translations: trans,
+        url: url || null, 
+        parent_id: parent ? Number(parent) : null 
+    };
 
     try {
       if (editId) await api.updateMenuItem({ id: editId, ...data });

@@ -27,7 +27,7 @@ async function request(url, options = {}) {
                 window.dispatchEvent(new CustomEvent('unauthorized'));
                 throw new Error('Session expired. Please login again.');
             }
-            
+
             if (error.response.status >= 500) {
                 throw new Error('Ошибка на сервере. Пожалуйста, попробуйте позже.');
             }
@@ -100,7 +100,7 @@ export const api = {
                 if (error.response && error.response.data && error.response.data.message) {
                     throw new Error(error.response.data.message);
                 }
-                throw error; 
+                throw error;
             });
     },
     deleteImage(postId) { return request(`/images/${postId}`, { method: 'DELETE' }); },

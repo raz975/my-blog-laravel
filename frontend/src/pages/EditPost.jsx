@@ -46,16 +46,21 @@ export default function EditPost({ user, lang }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentTitle = titleTrans[activeTab] || "";
-    const currentContent = contentTrans[activeTab] || "";
+    
+    const translations = languages.map(l => ({
+      locale: l.code,
+      title: titleTrans[l.code] || "",
+      content: contentTrans[l.code] || ""
+    })).filter(tr => tr.title.trim() && tr.content.trim());
 
-    if (!currentTitle.trim() || !currentContent.trim()) {
-      setError(t(lang, "fillFields") || "Заполните все поля");
+    if (translations.length === 0) {
+      setError(t(lang, "fillFields") || "Заполните хотя бы один язык");
       return;
     }
+    
     setSaving(true);
     try {
-      await api.updatePost({ id, title: currentTitle, content: currentContent });
+      await api.updatePost({ id, translations });
       navigate(`/posts/${id}`); 
     } catch (err) {
       setError(err.message);

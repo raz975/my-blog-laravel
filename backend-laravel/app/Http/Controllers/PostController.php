@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\PostTranslation;
 use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
@@ -11,9 +12,10 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $userId = auth('sanctum')->id() ?? 0;
+        $lang = $request->query('lang', 'ru');
         $search = $request->query('search');
         
-        $query = Post::with(['user', 'image'])
+        $query = Post::with(['user', 'image', 'translations'])
             ->withCount('likes')
             ->withExists(['likes as liked_by_me' => function ($q) use ($userId) {
                 $q->where('user_id', $userId);
@@ -25,22 +27,30 @@ class PostController extends Controller
 
         $posts = $query->orderBy('id', 'desc')->get();
 
-        $posts->each(function ($post) {
+        $posts->each(function ($post) use ($lang) {
+            $translation = $post->translations->where('locale', $lang)->first();
+            
             $post->author = $post->user ? $post->user->name : 'Unknown';
             $post->author_role = $post->user ? $post->user->role : 'user';
             $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
             $post->likes = $post->likes_count;
             $post->liked_by_me = (bool) $post->liked_by_me;
-            unset($post->user, $post->image, $post->likes_count);
+            
+            $post->title = $translation ? $translation->title : $post->title;
+            $post->content = $translation ? $translation->content : $post->content;
+            
+            unset($post->user, $post->image, $post->likes_count, $post->translations);
         });
 
         return response()->json(['success' => true, 'data' => $posts]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $userId = auth('sanctum')->id() ?? 0;
-        $post = Post::with(['user', 'image'])
+        $lang = $request->query('lang', 'ru');
+        
+        $post = Post::with(['user', 'image', 'translations'])
             ->withCount('likes')
             ->withExists(['likes as liked_by_me' => function ($q) use ($userId) {
                 $q->where('user_id', $userId);
@@ -48,25 +58,57 @@ class PostController extends Controller
 
         if (!$post) return response()->json(['success' => false, 'message' => 'Post not found'], 404);
 
+        $translation = $post->translations->where('locale', $lang)->first();
+
         $post->author = $post->user ? $post->user->name : 'Unknown';
         $post->author_role = $post->user ? $post->user->role : 'user';
         $post->image_url = $post->image ? '/uploads/' . $post->image->file_name : null;
         $post->likes = $post->likes_count;
         $post->liked_by_me = (bool) $post->liked_by_me;
-        unset($post->user, $post->image, $post->likes_count);
+        
+        $post->title = $translation ? $translation->title : $post->title;
+        $post->content = $translation ? $translation->content : $post->content;
+        
+        unset($post->user, $post->image, $post->likes_count, $post->translations);
 
         return response()->json(['success' => true, 'data' => $post]);
     }
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|string|max:255', 'content' => 'required|string|max:5000']);
-        $post = Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'user_id' => auth()->id()
+        $request->validate([
+            'translations' => 'required|array',
+            'translations.*.locale' => 'required|string|max:5',
+            'translations.*.title' => 'required|string|max:255',
+            'translations.*.content' => 'required|string|max:5000',
         ]);
-        return response()->json(['success' => true, 'data' => $post]);
+
+        try {
+            DB::beginTransaction();
+            
+            $mainTranslation = $request->translations[0];
+            
+            $post = Post::create([
+                'title' => $mainTranslation['title'],
+                'content' => $mainTranslation['content'],
+                'user_id' => auth()->id()
+            ]);
+
+            foreach ($request->translations as $trans) {
+                PostTranslation::create([
+                    'post_id' => $post->id,
+                    'locale' => $trans['locale'],
+                    'title' => $trans['title'],
+                    'content' => $trans['content'],
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'data' => $post]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -76,9 +118,35 @@ class PostController extends Controller
         
         $this->authorize('update', $post);
         
-        $request->validate(['title' => 'required|string|max:255', 'content' => 'required|string|max:5000']);
-        $post->update(['title' => $request->title, 'content' => $request->content]);
-        return response()->json(['success' => true]);
+        $request->validate([
+            'translations' => 'required|array',
+            'translations.*.locale' => 'required|string|max:5',
+            'translations.*.title' => 'required|string|max:255',
+            'translations.*.content' => 'required|string|max:5000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            
+            $mainTranslation = $request->translations[0];
+            $post->update([
+                'title' => $mainTranslation['title'],
+                'content' => $mainTranslation['content']
+            ]);
+
+            foreach ($request->translations as $trans) {
+                PostTranslation::updateOrCreate(
+                    ['post_id' => $post->id, 'locale' => $trans['locale']],
+                    ['title' => $trans['title'], 'content' => $trans['content']]
+                );
+            }
+
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)

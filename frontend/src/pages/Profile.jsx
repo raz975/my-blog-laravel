@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { t } from "../translations.js";
 
@@ -113,17 +113,25 @@ export default function Profile({ user: currentUser, lang }) {
             <span><strong>{profile.posts?.length || 0}</strong> {t(lang, "posts") || "постов"}</span>
             <span><strong>{profile.followers}</strong> {t(lang, "followers") || "подписчиков"}</span>
             <span><strong>{profile.following}</strong> {t(lang, "following") || "подписок"}</span>
-            <span><strong>{profile.total_likes}</strong> {t(lang, "likesReceived") || "лайков"}</span>
+            <span>❤️ <strong>{profile.total_likes}</strong> {t(lang, "likesReceived") || "лайков"}</span>
           </div>
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
           {isMyProfile ? (
-            <button className="glow-gray"  onClick={() => setIsSettingsOpen(true)} style={{ background: "var(--bg-hover)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "var(--text-main)" }}>
+            <button 
+              onClick={() => setIsSettingsOpen(true)} 
+              className="glow-gray"
+              style={{ background: "var(--bg-hover)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "var(--text-main)" }}
+            >
               ⚙️ {t(lang, "settings") || "Настройки"}
             </button>
           ) : (
-            <button onClick={handleSubscribe} style={{ background: profile.is_subscribed ? "var(--danger)" : "var(--accent)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "white" }}>
+            <button 
+              onClick={handleSubscribe} 
+              className={profile.is_subscribed ? "glow-danger" : "glow-accent"}
+              style={{ background: profile.is_subscribed ? "var(--danger)" : "var(--accent)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", color: "white" }}
+            >
               {profile.is_subscribed ? (t(lang, "unsubscribe") || "Отписаться") : (t(lang, "subscribe") || "Подписаться")}
             </button>
           )}
@@ -131,16 +139,32 @@ export default function Profile({ user: currentUser, lang }) {
       </div>
 
       <h2 style={{ marginBottom: "15px" }}>{t(lang, "authorPosts") || "Посты автора"}</h2>
+      
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         {profile.posts?.length === 0 && <p style={{ color: "var(--text-muted)" }}>{t(lang, "noUserPosts") || "У пользователя пока нет постов."}</p>}
+        
         {profile.posts?.map(post => (
           <div key={post.id} style={{ background: "var(--bg-card)", borderRadius: "14px", padding: "15px", width: "240px", boxShadow: "var(--shadow)" }}>
             {post.image_url && (
-              <img src={"http://127.0.0.1:8000" + post.image_url} alt="" style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} />
+              <img src={post.image_url} alt="" style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} />
             )}
             <h3 style={{ margin: "0 0 5px", fontSize: "16px" }}>{post.title}</h3>
             <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "10px" }}> {post.likes} {t(lang, "likes") || "лайков"}</p>
-            <Link to={`/posts/${post.id}`} style={{ textDecoration: "none", background: "var(--accent)", color: "white", padding: "5px 10px", borderRadius: "6px", fontSize: "12px", display: "inline-block" }}>
+            
+            <Link 
+              to={`/posts/${post.id}`} 
+              className="btn-action glow-accent"
+              style={{ 
+                textDecoration: "none", 
+                background: "var(--accent)", 
+                color: "white", 
+                padding: "8px 14px", 
+                borderRadius: "8px", 
+                fontSize: "13px", 
+                display: "inline-block",
+                whiteSpace: "nowrap",
+              }}
+            >
               {t(lang, "readMore") || "Подробнее"}
             </Link>
           </div>
@@ -159,7 +183,7 @@ export default function Profile({ user: currentUser, lang }) {
             {successMsg && <p style={{ color: "var(--success)", marginBottom: "15px", textAlign: "center" }}>{successMsg}</p>}
 
             <form onSubmit={handleUpdateProfile} style={{ marginBottom: "30px" }}>
-              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>{t(lang, "personalInfo") || "Личные данные"}</h3>
+              <h3 style={{ fontSize: "16px", marginBottom: "10px" }}>{t(lang, "profileInfo") || "Личные данные"}</h3>
               
               <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>{t(lang, "name") || "Имя"}</label>
               <input style={inputStyle} type="text" value={name} onChange={e => setName(e.target.value)} />
@@ -167,7 +191,12 @@ export default function Profile({ user: currentUser, lang }) {
               <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>Email</label>
               <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} />
 
-              <button type="submit" disabled={saving} style={{ width: "100%", background: "var(--accent)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}>
+              <button 
+                type="submit" 
+                disabled={saving} 
+                className="glow-accent"
+                style={{ width: "100%", background: "var(--accent)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}
+              >
                 {saving ? (t(lang, "saving") || "Сохранение...") : (t(lang, "saveData") || "Сохранить данные")}
               </button>
             </form>
@@ -181,7 +210,12 @@ export default function Profile({ user: currentUser, lang }) {
               <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)" }}>{t(lang, "newPassword") || "Новый пароль"}</label>
               <input style={inputStyle} type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
 
-              <button type="submit" disabled={saving} style={{ width: "100%", background: "var(--danger)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}>
+              <button 
+                type="submit" 
+                disabled={saving} 
+                className="glow-danger"
+                style={{ width: "100%", background: "var(--danger)", color: "white", border: "none", padding: "10px", borderRadius: "8px", cursor: saving ? "not-allowed" : "pointer", marginTop: "5px" }}
+              >
                 {saving ? (t(lang, "changing") || "Смена...") : (t(lang, "changePassword") || "Изменить пароль")}
               </button>
             </form>

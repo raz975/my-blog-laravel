@@ -82,7 +82,7 @@ export default function EditPost({ user, lang }) {
   return (
     <div style={{ maxWidth: "400px", margin: "40px auto", fontFamily: "Franklin Gothic Medium", color: "var(--text-main)" }}>
       <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px" }}>
-        <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "20px" }}>
+        <h2 style={{ margin: "0 0 15px", textAlign: "center", fontSize: "30px" }}>
           {t(lang, "editPost") || "Изменить пост"}
         </h2>
         

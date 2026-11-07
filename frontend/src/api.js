@@ -1,211 +1,117 @@
-export const translations = {
-  ru: {
-    posts: "Посты", manageMenu: "Меню", createPost: "Создать пост",
-    login: "Войти", registration: "Регистрация", hello: "Привет", logout: "Выйти",
-    allPosts: "Все посты", noPosts: "Постов пока нет.",
-    author: "Автор", created: "Создан", readMore: "Подробнее", delete: "Удалить",
-    edit: "Изменить", save: "Сохранить", cancel: "Отмена", create: "Создать",
-    saving: "Сохранение...", creating: "Создание...", loading: "Загрузка...",
-    loginTitle: "Вход", registerTitle: "Регистрация", editPost: "Изменить пост",
-    createPostTitle: "Создать пост", name: "Имя", email: "Email", password: "Пароль",
-    title: "Заголовок", content: "Содержание", menu: "Меню", createMenu: "Создать пункт",
-    editMenu: "Изменить пункт", itemName: "Название", urlRoute: "URL", noParent: "Без родителя",
-    deleteMenuConfirm: "Удалить пункт и все подменю?", deletePostConfirm: "Удалить пост?",
-    confirmDeletePost: "Вы уверены, что хотите удалить пост?",
-    noMenuItems: "Пунктов меню нет.", language: "Язык", profile: "Профиль",
-    adminPanel: "Админ-панель", users: "Пользователи", updateProfile: "Обновить профиль",
-    changePassword: "Сменить пароль", oldPassword: "Старый пароль", newPassword: "Новый пароль",
-    profileUpdated: "Профиль обновлён", passwordChanged: "Пароль изменён",
-    block: "Заблокировать", unblock: "Разблокировать", blocked: "Заблокирован",
-    active: "Активен", role: "Роль", roleUser: "Пользователь", roleAdmin: "Администратор",
-    changeRole: "Сменить роль", you: "Это вы", actions: "Действия",
-    confirmBlock: "Заблокировать пользователя?", confirmUnblock: "Разблокировать?",
-    confirmChangeRole: "Сменить роль?", cannotBlockSelf: "Нельзя блокировать себя",
-    cannotChangeOwnRole: "Нельзя менять свою роль", back: "Назад",
-    profileInfo: "Данные профиля", security: "Безопасность", myProfile: "Мой профиль",
-    languages: "Языки", addLanguage: "Добавить язык", editLanguage: "Изменить язык",
-    langCode: "Код (ru/en/hy)", langName: "Название", setActive: "Сделать активным",
-    activeLang: "Активный", deleteLangConfirm: "Удалить язык?",
-    cannotDeleteActive: "Нельзя удалить активный язык",
-    dragToReorder: "Перетащите для изменения порядка", expandAll: "Развернуть",
-    collapseAll: "Свернуть", adminMenu: "Меню админа", userMenu: "Меню пользователя",
-    search: "Поиск...", searchBtn: "Найти",
-    comments: "Комментарии", noComments: "Пока нет комментариев. Будь первым! 🎉",
-    writeComment: "Написать комментарий...", loginToComment: "Войдите, чтобы комментировать",
-    deleteCommentConfirm: "Удалить комментарий?", confirmDeleteComment: "Вы уверены, что хотите удалить комментарий?", edited: "(изменён)",
-    likes: "лайков", like: "лайк",
-    titleRequired: "Введите название для активного языка",
-    cannotDeleteSelf: "Нельзя удалить себя",
-    confirmDeleteUser: "Удалить пользователя",
-    closeEsc: "Закрыть (Esc)",
-    myPosts: "Мои посты",
-    settings: "Настройки",
-    followers: "Подписчики",
-    following: "Подписки",
-    likesReceived: "Лайки",
-    subscribe: "Подписаться",
-    unsubscribe: "Отписаться",
-    subscribed: "Вы подписаны",
-    userProfile: "Профиль пользователя",
-    noUserPosts: "У пользователя нет постов.",
-    settingsTitle: "Настройки профиля",
-    profileTab: "Профиль",
-    securityTab: "Безопасность",
-    joinedAt: "Дата регистрации",
-    cannotSubscribeSelf: "Нельзя подписаться на себя",
-    code: "Код",
-    enterCode: "Код (ru/en/hy)",
-    enterName: "Название",
-    fillFields: "Заполните все поля",
-    notFound: "Не найдено",
-    noImage: "Нет фото",
-    loginToLike: "Войдите, чтобы лайкать",
-    dark: "Тёмная 🌙",
-    light: "Светлая ☀️"
-  },
-  en: {
-    posts: "Posts", manageMenu: "Menu", createPost: "Create Post",
-    login: "Login", registration: "Register", hello: "Hello", logout: "Logout",
-    allPosts: "All Posts", noPosts: "No posts yet.",
-    author: "Author", created: "Created", readMore: "Read more", delete: "Delete",
-    edit: "Edit", save: "Save", cancel: "Cancel", create: "Create",
-    saving: "Saving...", creating: "Creating...", loading: "Loading...",
-    loginTitle: "Login", registerTitle: "Register", editPost: "Edit Post",
-    createPostTitle: "Create Post", name: "Name", email: "Email", password: "Password",
-    title: "Title", content: "Content", menu: "Menu", createMenu: "Create Item",
-    editMenu: "Edit Item", itemName: "Name", urlRoute: "URL", noParent: "No Parent",
-    deleteMenuConfirm: "Delete item and all submenus?", deletePostConfirm: "Delete post?",
-    confirmDeletePost: "Are you sure you want to delete this post?",
-    noMenuItems: "No menu items.", language: "Language", profile: "Profile",
-    adminPanel: "Admin Panel", users: "Users", updateProfile: "Update Profile",
-    changePassword: "Change Password", oldPassword: "Old password", newPassword: "New password",
-    profileUpdated: "Profile updated", passwordChanged: "Password changed",
-    block: "Block", unblock: "Unblock", blocked: "Blocked",
-    active: "Active", role: "Role", roleUser: "User", roleAdmin: "Administrator",
-    changeRole: "Change Role", you: "This is you", actions: "Actions",
-    confirmBlock: "Block user?", confirmUnblock: "Unblock?",
-    confirmChangeRole: "Change role?", cannotBlockSelf: "Cannot block yourself",
-    cannotChangeOwnRole: "Cannot change your own role", back: "Back",
-    profileInfo: "Profile Info", security: "Security", myProfile: "My Profile",
-    languages: "Languages", addLanguage: "Add Language", editLanguage: "Edit Language",
-    langCode: "Code (ru/en/hy)", langName: "Name", setActive: "Set Active",
-    activeLang: "Active", deleteLangConfirm: "Delete language?",
-    cannotDeleteActive: "Cannot delete active language",
-    dragToReorder: "Drag to reorder", expandAll: "Expand",
-    collapseAll: "Collapse", adminMenu: "Admin Menu", userMenu: "User Menu",
-    search: "Search...", searchBtn: "Search",
-    comments: "Comments", noComments: "No comments yet. Be the first! 🎉",
-    writeComment: "Write a comment...", loginToComment: "Login to comment",
-    deleteCommentConfirm: "Delete comment?", confirmDeleteComment: "Are you sure you want to delete this comment?", edited: "(edited)",
-    likes: "likes", like: "like",
-    titleRequired: "Enter name for active language",
-    cannotDeleteSelf: "Cannot delete yourself",
-    confirmDeleteUser: "Delete user",
-    closeEsc: "Close (Esc)",
-    myPosts: "My Posts",
-    settings: "Settings",
-    followers: "Followers",
-    following: "Following",
-    likesReceived: "Likes",
-    subscribe: "Subscribe",
-    unsubscribe: "Unsubscribe",
-    subscribed: "Subscribed",
-    userProfile: "User Profile",
-    noUserPosts: "User has no posts.",
-    settingsTitle: "Profile Settings",
-    profileTab: "Profile",
-    securityTab: "Security",
-    joinedAt: "Joined",
-    cannotSubscribeSelf: "Cannot subscribe to yourself",
-    code: "Code",
-    enterCode: "Code (ru/en/hy)",
-    enterName: "Name",
-    fillFields: "Fill all fields",
-    notFound: "Not found",
-    noImage: "No image",
-    loginToLike: "Login to like",
-    dark: "Dark 🌙",
-    light: "Light ☀️"
-  },
-  hy: {
-    posts: "Գրառումներ", manageMenu: "Մենյու", createPost: "Ստեղծել",
-    login: "Մուտք", registration: "Գրանցում", hello: "Բարև", logout: "Ելք",
-    allPosts: "Բոլոր գրառումները", noPosts: "Գրառումներ չկան։",
-    author: "Հեղինակ", created: "Ստեղծվել է", readMore: "Կարդալ", delete: "Ջնջել",
-    edit: "Փոփոխել", save: "Պահպանել", cancel: "Չեղարկել", create: "Ստեղծել",
-    saving: "Պահպանվում է...", creating: "Ստեղծվում է...", loading: "Բեռնվում է...",
-    loginTitle: "Մուտք", registerTitle: "Գրանցում", editPost: "Փոփոխել",
-    createPostTitle: "Ստեղծել գրառում", name: "Անուն", email: "Email", password: "Գաղտնաբառ",
-    title: "Վերնագիր", content: "Բովանդակություն", menu: "Մենյու", createMenu: "Ստեղծել",
-    editMenu: "Փոփոխել", itemName: "Անուն", urlRoute: "URL", noParent: "Առանց ծնողի",
-    deleteMenuConfirm: "Ջնջե՞լ կետը և ենթամենյուները։", deletePostConfirm: "Ջնջե՞լ գրառումը։",
-    confirmDeletePost: "Վստա՞հ եք, որ ուզում եք ջնջել այս գրառումը:",
-    noMenuItems: "Մենյուի կետեր չկան։", language: "Լեզու", profile: "Պրոֆիլ",
-    adminPanel: "Ադմին վահանակ", users: "Օգտատերեր", updateProfile: "Թարմացնել",
-    changePassword: "Փոխել գաղտնաբառը", oldPassword: "Հին գաղտնաբառ", newPassword: "Նոր գաղտնաբառ",
-    profileUpdated: "Պրոֆիլը թարմացվեց", passwordChanged: "Գաղտնաբառը փոխվեց",
-    block: "Արգելափակել", unblock: "Ապաարգելափակել", blocked: "Արգելափակված",
-    active: "Ակտիվ", role: "Դեր", roleUser: "Օգտատեր", roleAdmin: "Ադմին",
-    changeRole: "Փոխել դերը", you: "Սա դուք եք", actions: "Գործողություններ",
-    confirmBlock: "Արգելափակե՞լ։", confirmUnblock: "Ապաարգելափակե՞լ։",
-    confirmChangeRole: "Փոխե՞լ դերը։", cannotBlockSelf: "Չեք կարող արգելափակել ձեզ",
-    cannotChangeOwnRole: "Չեք կարող փոխել ձեր դերը", back: "Հետ",
-    profileInfo: "Պրոֆիլի տվյալներ", security: "Անվտանգություն", myProfile: "Իմ պրոֆիլը",
-    languages: "Լեզուներ", addLanguage: "Ավելացնել լեզու", editLanguage: "Փոփոխել",
-    langCode: "Կոդ (ru/en/hy)", langName: "Անուն", setActive: "Ակտիվացնել",
-    activeLang: "Ակտիվ", deleteLangConfirm: "Ջնջե՞լ լեզուն։",
-    cannotDeleteActive: "Չեք կարող ջնջել ակտիվ լեզուն",
-    dragToReorder: "Քաշեք՝ հերթականությունը փոխելու", expandAll: "Ընդարձակել",
-    collapseAll: "Ծալել", adminMenu: "Ադմինի մենյու", userMenu: "Օգտվողի մենյու",
-    search: "Որոնում...", searchBtn: "Գտնել",
-    comments: "Մեկնաբանություններ", noComments: "Մեկնաբանություններ դեռ չկան։ 🎉",
-    writeComment: "Գրել մեկնաբանություն...", loginToComment: "Մուտք գործեք մեկնաբանելու",
-    deleteCommentConfirm: "Ջնջե՞լ մեկնաբանությունը։", confirmDeleteComment: "Վստա՞հ եք, որ ուզում եք ջնջել այս մեկնաբանությունը:", edited: "(փոփոխված)",
-    likes: "հավանում", like: "հավանում",
-    titleRequired: "Մուտքագրեք անունը",
-    cannotDeleteSelf: "Չեք կարող ջնջել ինքներդ ձեզ",
-    confirmDeleteUser: "Ջնջել օգտատիրոջը",
-    closeEsc: "Փակել (Esc)",
-    myPosts: "Իմ գրառումները",
-    settings: "Կարգավորումներ",
-    followers: "Բաժանորդներ",
-    following: "Բաժանորդագրություններ",
-    likesReceived: "Հավանումներ",
-    subscribe: "Բաժանորդագրվել",
-    unsubscribe: "Չեղարկել",
-    subscribed: "Բաժանորդագրված եք",
-    userProfile: "Օգտատիրոջ պրոֆիլ",
-    noUserPosts: "Օգտատերը գրառումներ չունի։",
-    settingsTitle: "Պրոֆիլի կարգավորումներ",
-    profileTab: "Պրոֆիլ",
-    securityTab: "Անվտանգություն",
-    joinedAt: "Գրանցման ամսաթիվ",
-    cannotSubscribeSelf: "Չեք կարող բաժանորդագրվել ինքներդ ձեզ",
-    code: "Կոդ",
-    enterCode: "Կոդ (ru/en/hy)",
-    enterName: "Անվանում",
-    fillFields: "Լրացրեք բոլոր դաշտերը",
-    notFound: "Չի գտնվել",
-    noImage: "Նկար չկա",
-    loginToLike: "Մուտք գործեք լայքելու համար",
-    dark: "Մուգ 🌙",
-    light: "Բաց ☀️"
-  },
-  fr: {
-    posts: "Articles", manageMenu: "Menu", createPost: "Créer un article",
-    login: "Connexion", registration: "Inscription", hello: "Bonjour", logout: "Déconnexion",
-    allPosts: "Tous les articles", noPosts: "Aucun article pour le moment.",
-    author: "Auteur", created: "Créé", readMore: "Lire la suite", delete: "Supprimer",
-    edit: "Modifier", save: "Enregistrer", cancel: "Annuler", create: "Créer",
-    saving: "Enregistrement...", creating: "Création...", loading: "Chargement...",
-    name: "Nom", email: "Email", password: "Mot de passe",
-    title: "Titre", content: "Contenu", menu: "Menu",
-    profile: "Profil", adminPanel: "Panneau d'administration", users: "Utilisateurs",
-    role: "Rôle", actions: "Actions", comments: "Commentaires",
-    dark: "Sombre 🌙", light: "Clair ☀️"
-  }
+import axios from 'axios';
+
+axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
+axios.defaults.headers.common['Accept'] = 'application/json';
+
+async function getCsrfCookie() {
+    await axios.get('/sanctum/csrf-cookie');
+}
+
+async function request(url, options = {}) {
+    try {
+        const response = await axios({
+            url: `/api${url}`,
+            method: options.method || 'GET',
+            data: options.body || undefined,
+            ...options
+        });
+
+        if (response.data && response.data.success === false) {
+            throw new Error(response.data.error || response.data.message || 'Operation failed');
+        }
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            if (error.response.status === 401) {
+                window.dispatchEvent(new CustomEvent('unauthorized'));
+                throw new Error('Session expired. Please login again.');
+            }
+            if (error.response.status >= 500) {
+                throw new Error('Ошибка на сервере. Пожалуйста, попробуйте позже.');
+            }
+            const errorData = error.response.data;
+            const message = errorData.message || errorData.error || `HTTP ${error.response.status}`;
+            throw new Error(message);
+        } else if (error.request) {
+            throw new Error('Ошибка сети. Проверьте, запущен ли сервер Laravel.');
+        } else {
+            throw new Error(error.message);
+        }
+    }
+}
+
+export const api = {
+    register(data) { return getCsrfCookie().then(() => request('/auth/register', { method: 'POST', body: data })); },
+    login(data) { return getCsrfCookie().then(() => request('/auth/login', { method: 'POST', body: data })); },
+    logout() { return request('/auth/logout', { method: 'POST' }); },
+    me() { return request('/auth/me'); },
+    updateProfile(data) { return request('/auth/update-profile', { method: 'PUT', body: data }); },
+    changePassword(data) { return request('/auth/change-password', { method: 'PUT', body: data }); },
+
+    getPosts(lang, search) {
+        const params = new URLSearchParams();
+        if (lang) params.append("lang", lang);
+        if (search && search.trim()) params.append("search", search.trim());
+        const qs = params.toString();
+        return request(`/posts${qs ? `?${qs}` : ''}`);
+    },
+    getPost(id, lang) { return request(`/posts/${id}${lang ? `?lang=${lang}` : ''}`); },
+    createPost(data) { return request('/posts', { method: 'POST', body: data }); },
+    updatePost(data) { return request(`/posts/${data.id}`, { method: 'PUT', body: data }); },
+    deletePost(id) { return request(`/posts/${id}`, { method: 'DELETE' }); },
+    likePost(postId) { return request(`/posts/${postId}/like`, { method: 'POST' }); },
+
+    getComments(postId) { return request(`/posts/${postId}/comments`); },
+    createComment(postId, content) { return request(`/posts/${postId}/comments`, { method: 'POST', body: { content } }); },
+    updateComment(id, content) { return request(`/comments/${id}`, { method: 'PUT', body: { content } }); },
+    deleteComment(id) { return request(`/comments/${id}`, { method: 'DELETE' }); },
+    likeComment(commentId) { return request(`/comments/${commentId}/like`, { method: 'POST' }); },
+
+    getMenu(lang) { return request(`/menu${lang ? `?lang=${lang}` : ''}`); },
+    getAdminMenu() { return request('/admin/menu'); },
+    createMenuItem(data) { return request('/admin/menu', { method: 'POST', body: data }); },
+    updateMenuItem(data) { return request(`/admin/menu/${data.id}`, { method: 'PUT', body: data }); },
+    deleteMenuItem(id) { return request(`/admin/menu/${id}`, { method: 'DELETE' }); },
+    reorderMenu(items) { return request('/admin/menu/reorder', { method: 'PUT', body: { items } }); },
+
+    getUsers() { return request('/admin/users'); },
+    blockUser(userId, isBlocked) { return request(`/admin/users/${userId}/block`, { method: 'PUT', body: { is_blocked: isBlocked } }); },
+    changeRole(userId, role) { return request(`/admin/users/${userId}/role`, { method: 'PUT', body: { role } }); },
+    deleteUser(userId) { return request(`/admin/users/${userId}`, { method: 'DELETE' }); },
+
+    getLanguages() { return request('/admin/languages'); },
+    getPublicLanguages() { return request('/languages'); },
+    createLanguage(data) { return request('/admin/languages', { method: 'POST', body: data }); },
+    updateLanguage(data) { return request(`/admin/languages/${data.id}`, { method: 'PUT', body: data }); },
+    deleteLanguage(id) { return request(`/admin/languages/${id}`, { method: 'DELETE' }); },
+    setActiveLanguage(id) { return request(`/admin/languages/${id}/set-active`, { method: 'PUT' }); },
+
+    getPostImage(postId) { return request(`/images/${postId}`); },
+    uploadImage(postId, file) {
+        const formData = new FormData();
+        formData.append('post_id', postId);
+        formData.append('image', file);
+        return axios.post('/api/images/upload', formData)
+            .then(res => res.data)
+            .catch(error => {
+                if (error.response && error.response.data && error.response.data.message) {
+                    throw new Error(error.response.data.message);
+                }
+                throw error; 
+            });
+    },
+    deleteImage(postId) { return request(`/images/${postId}`, { method: 'DELETE' }); },
+
+    getUserProfile(id) { return request(`/users/${id}/profile`); },
+    getMyProfile() { return request('/users/me/profile'); },
+    subscribe(userId) { return request(`/users/${userId}/subscribe`, { method: 'POST' }); },
+    unsubscribe(userId) { return request(`/users/${userId}/unsubscribe`, { method: 'POST' }); }
 };
 
-export const t = (lang, key) => {
-  return translations[lang]?.[key] || translations['en']?.[key] || key;
-};
+window.addEventListener('unauthorized', () => {
+    localStorage.removeItem('user');
+    if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+        window.location.href = '/login';
+    }
+});

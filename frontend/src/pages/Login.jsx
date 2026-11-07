@@ -40,7 +40,7 @@ export default function Login({ onLogin, lang }) {
 
   return (
     <div style={{ background: "var(--bg-card)", boxShadow: "var(--shadow)", borderRadius: "14px", padding: "20px", fontFamily: "Franklin Gothic Medium", width: "400px", minHeight: "300px", margin: "30px auto", textAlign: "center", boxSizing: "border-box", color: "var(--text-main)", transition: "background 0.3s" }}>
-      <h1 style={{ margin: "0 0 28px", color: "var(--text-main)" }}>{t(lang, "loginTitle")}</h1>
+      <h2 style={{ margin: "0 0 28px", color: "var(--text-main)", fontSize: "30px" }}>{t(lang, "loginTitle")}</h2>
       <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "18px" }}>
         <input style={inputStyle} type="email" placeholder={t(lang, "email")} value={email} onChange={e => setEmail(e.target.value)} required />
         <input style={inputStyle} type="password" placeholder={t(lang, "password")} value={password} onChange={e => setPassword(e.target.value)} required />
